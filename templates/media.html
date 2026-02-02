@@ -1,0 +1,379 @@
+{% extends 'base.html' %}
+
+{% block title %}Media Gallery - Modaly{% endblock %}
+
+{% block content %}
+<!-- Header -->
+<section class="hero-section" style="padding: 8rem 0 4rem;">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 hero-content">
+                <h1 class="hero-title animate-fade-in-up" style="font-size: 3rem;">Our Work in Action</h1>
+                <p class="hero-subtitle animate-fade-in-up delay-1">
+                    Explore our projects, initiatives, and the impact we're making in communities around the world.
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Filter Section -->
+<section class="py-4 bg-light" style="border-bottom: 1px solid var(--border-color);">
+    <div class="container">
+        <div class="d-flex flex-wrap gap-2 justify-content-center">
+            <button class="btn btn-primary filter-btn active" data-filter="all">All</button>
+            <button class="btn btn-outline-primary filter-btn" data-filter="education">Education</button>
+            <button class="btn btn-outline-primary filter-btn" data-filter="healthcare">Healthcare</button>
+            <button class="btn btn-outline-primary filter-btn" data-filter="community">Community</button>
+            <button class="btn btn-outline-primary filter-btn" data-filter="environment">Environment</button>
+        </div>
+    </div>
+</section>
+
+<!-- Media Grid -->
+<section class="py-5">
+    <div class="container">
+        <div class="row g-4" id="mediaGrid">
+            
+            <!-- Media Item 1 - Education -->
+            <div class="col-md-6 col-lg-4 media-item animate-on-scroll" data-category="education">
+                <div class="card h-100 media-card">
+                    <div class="media-image-wrapper">
+                        <img src="https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=600&h=400&fit=crop" 
+                             class="card-img-top" alt="School Supplies Drive">
+                        <div class="media-overlay">
+                            <button class="btn btn-light btn-sm" onclick="openModal('modal1')">
+                                <i class="bi bi-eye me-1"></i>View Details
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <span class="badge bg-primary mb-2">Education</span>
+                        <h5 class="card-title">School Supplies Drive 2024</h5>
+                        <p class="card-text" style="color: var(--text-secondary);">
+                            Provided school supplies to over 150 children in underserved communities.
+                        </p>
+                        <div class="d-flex align-items-center" style="color: var(--text-muted);">
+                            <i class="bi bi-calendar3 me-2"></i>
+                            <small>January 2024</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Media Item 2 - Healthcare -->
+            <div class="col-md-6 col-lg-4 media-item animate-on-scroll" data-category="healthcare">
+                <div class="card h-100 media-card">
+                    <div class="media-image-wrapper">
+                        <img src="https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=600&h=400&fit=crop" 
+                             class="card-img-top" alt="Health Clinic">
+                        <div class="media-overlay">
+                            <button class="btn btn-light btn-sm" onclick="openModal('modal2')">
+                                <i class="bi bi-eye me-1"></i>View Details
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <span class="badge bg-success mb-2">Healthcare</span>
+                        <h5 class="card-title">Mobile Health Clinic Launch</h5>
+                        <p class="card-text" style="color: var(--text-secondary);">
+                            Launched mobile clinic providing free health screenings to 500+ families.
+                        </p>
+                        <div class="d-flex align-items-center" style="color: var(--text-muted);">
+                            <i class="bi bi-calendar3 me-2"></i>
+                            <small>February 2024</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Media Item 3 - Community -->
+            <div class="col-md-6 col-lg-4 media-item animate-on-scroll" data-category="community">
+                <div class="card h-100 media-card">
+                    <div class="media-image-wrapper">
+                        <img src="https://images.unsplash.com/photo-1559027615-cd4628902d4a?w=600&h=400&fit=crop" 
+                             class="card-img-top" alt="Community Center">
+                        <div class="media-overlay">
+                            <button class="btn btn-light btn-sm" onclick="openModal('modal3')">
+                                <i class="bi bi-eye me-1"></i>View Details
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <span class="badge bg-warning mb-2">Community</span>
+                        <h5 class="card-title">Community Center Renovation</h5>
+                        <p class="card-text" style="color: var(--text-secondary);">
+                            Renovated community center now serving as hub for local programs.
+                        </p>
+                        <div class="d-flex align-items-center" style="color: var(--text-muted);">
+                            <i class="bi bi-calendar3 me-2"></i>
+                            <small>March 2024</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Media Item 4 - Education -->
+            <div class="col-md-6 col-lg-4 media-item animate-on-scroll" data-category="education">
+                <div class="card h-100 media-card">
+                    <div class="media-image-wrapper">
+                        <img src="https://images.unsplash.com/photo-1427504494785-3a9ca7044f45?w=600&h=400&fit=crop" 
+                             class="card-img-top" alt="Computer Lab">
+                        <div class="media-overlay">
+                            <button class="btn btn-light btn-sm" onclick="openModal('modal4')">
+                                <i class="bi bi-eye me-1"></i>View Details
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <span class="badge bg-primary mb-2">Education</span>
+                        <h5 class="card-title">Computer Lab Installation</h5>
+                        <p class="card-text" style="color: var(--text-secondary);">
+                            Established computer lab with 20 stations for digital literacy training.
+                        </p>
+                        <div class="d-flex align-items-center" style="color: var(--text-muted);">
+                            <i class="bi bi-calendar3 me-2"></i>
+                            <small>April 2024</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Media Item 5 - Environment -->
+            <div class="col-md-6 col-lg-4 media-item animate-on-scroll" data-category="environment">
+                <div class="card h-100 media-card">
+                    <div class="media-image-wrapper">
+                        <img src="https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?w=600&h=400&fit=crop" 
+                             class="card-img-top" alt="Tree Planting">
+                        <div class="media-overlay">
+                            <button class="btn btn-light btn-sm" onclick="openModal('modal5')">
+                                <i class="bi bi-eye me-1"></i>View Details
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <span class="badge bg-success mb-2">Environment</span>
+                        <h5 class="card-title">Urban Tree Planting Initiative</h5>
+                        <p class="card-text" style="color: var(--text-secondary);">
+                            Planted 1,000 trees across urban areas to improve air quality.
+                        </p>
+                        <div class="d-flex align-items-center" style="color: var(--text-muted);">
+                            <i class="bi bi-calendar3 me-2"></i>
+                            <small>May 2024</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Media Item 6 - Healthcare -->
+            <div class="col-md-6 col-lg-4 media-item animate-on-scroll" data-category="healthcare">
+                <div class="card h-100 media-card">
+                    <div class="media-image-wrapper">
+                        <img src="https://images.unsplash.com/photo-1584515933487-779824d29309?w=600&h=400&fit=crop" 
+                             class="card-img-top" alt="Vaccination Drive">
+                        <div class="media-overlay">
+                            <button class="btn btn-light btn-sm" onclick="openModal('modal6')">
+                                <i class="bi bi-eye me-1"></i>View Details
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <span class="badge bg-success mb-2">Healthcare</span>
+                        <h5 class="card-title">Community Vaccination Drive</h5>
+                        <p class="card-text" style="color: var(--text-secondary);">
+                            Organized vaccination campaign reaching 800+ community members.
+                        </p>
+                        <div class="d-flex align-items-center" style="color: var(--text-muted);">
+                            <i class="bi bi-calendar3 me-2"></i>
+                            <small>June 2024</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Add more media items as needed -->
+
+        </div>
+
+        <!-- Empty State -->
+        <div id="emptyState" class="text-center py-5" style="display: none;">
+            <i class="bi bi-images fs-1 mb-3 d-block" style="color: var(--text-muted);"></i>
+            <h5>No projects found</h5>
+            <p style="color: var(--text-muted);">Try selecting a different category.</p>
+        </div>
+
+    </div>
+</section>
+
+<!-- Call to Action -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8 text-center">
+                <h2 class="mb-3">Be Part of Our Story</h2>
+                <p class="lead mb-4" style="color: var(--text-secondary);">
+                    Your support helps us create more impact stories like these. Join us in transforming lives.
+                </p>
+                <a href="{{ url_for('donate') }}" class="btn btn-primary btn-lg px-5">
+                    <i class="bi bi-heart-fill me-2"></i>Support Our Work
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% endblock %}
+
+{% block scripts %}
+<style>
+    /* Media Card Styles */
+    .media-card {
+        transition: all var(--transition-base);
+        border: 1px solid var(--border-color);
+        overflow: hidden;
+    }
+
+    .media-card:hover {
+        transform: translateY(-5px);
+        box-shadow: var(--shadow-lg);
+    }
+
+    .media-image-wrapper {
+        position: relative;
+        overflow: hidden;
+        height: 250px;
+    }
+
+    .media-image-wrapper img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform var(--transition-slow);
+    }
+
+    .media-card:hover .media-image-wrapper img {
+        transform: scale(1.1);
+    }
+
+    .media-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.7);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transition: opacity var(--transition-base);
+    }
+
+    .media-card:hover .media-overlay {
+        opacity: 1;
+    }
+
+    /* Filter Buttons */
+    .filter-btn {
+        transition: all var(--transition-fast);
+    }
+
+    .filter-btn.active {
+        background-color: var(--primary);
+        border-color: var(--primary);
+        color: #ffffff;
+    }
+
+    /* Animation for grid items */
+    .media-item {
+        opacity: 0;
+        animation: fadeInUp 0.6s ease forwards;
+    }
+
+    .media-item:nth-child(1) { animation-delay: 0.1s; }
+    .media-item:nth-child(2) { animation-delay: 0.2s; }
+    .media-item:nth-child(3) { animation-delay: 0.3s; }
+    .media-item:nth-child(4) { animation-delay: 0.4s; }
+    .media-item:nth-child(5) { animation-delay: 0.5s; }
+    .media-item:nth-child(6) { animation-delay: 0.6s; }
+
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* Dark mode adjustments */
+    [data-theme="dark"] .media-card {
+        background-color: var(--bg-card);
+        border-color: var(--border-color);
+    }
+
+    [data-theme="dark"] .media-overlay {
+        background: rgba(0, 0, 0, 0.8);
+    }
+</style>
+
+<script>
+    // Filter functionality
+    const filterButtons = document.querySelectorAll('.filter-btn');
+    const mediaItems = document.querySelectorAll('.media-item');
+    const emptyState = document.getElementById('emptyState');
+
+    filterButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            // Update active button
+            filterButtons.forEach(btn => btn.classList.remove('active'));
+            this.classList.add('active');
+
+            // Get filter category
+            const filterValue = this.getAttribute('data-filter');
+            
+            // Filter items
+            let visibleCount = 0;
+            mediaItems.forEach(item => {
+                const category = item.getAttribute('data-category');
+                
+                if (filterValue === 'all' || category === filterValue) {
+                    item.style.display = 'block';
+                    visibleCount++;
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+
+            // Show empty state if no items
+            emptyState.style.display = visibleCount === 0 ? 'block' : 'none';
+        });
+    });
+
+    // Modal functionality (placeholder - you can enhance this)
+    function openModal(modalId) {
+        alert('Modal functionality can be added here to show full project details, more images, and impact metrics.');
+        // You can implement a proper modal using Bootstrap's modal component
+    }
+
+    // Scroll animations
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
+            }
+        });
+    }, observerOptions);
+
+    document.querySelectorAll('.animate-on-scroll').forEach(el => {
+        observer.observe(el);
+    });
+</script>
+{% endblock %}

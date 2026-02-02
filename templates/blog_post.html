@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ post.title }} - Modaly Blog{% endblock %}
+
+{% block content %}
+<!-- Header -->
+<section class="blog-post-header" style="padding-top: 7rem;">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8 animate-fade-in-up">
+                <a href="{{ url_for('blog') }}" class="btn btn-outline-primary btn-sm mb-4">
+                    <i class="bi bi-arrow-left me-2"></i>Back to Blog
+                </a>
+                <span class="badge bg-primary mb-3">{{ post.category }}</span>
+                <h1 class="section-title mb-3">{{ post.title }}</h1>
+                <div class="d-flex align-items-center gap-3 flex-wrap" style="color: var(--text-muted);">
+                    <span><i class="bi bi-person-circle me-1"></i>{{ post.author }}</span>
+                    <span><i class="bi bi-calendar3 me-1"></i>{{ post.created_at[:10] if post.created_at is string else post.created_at.strftime('%B %d, %Y') }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Content -->
+<section class="py-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <!-- Featured Image -->
+                {% if post.image_url %}
+                <div class="mb-5 animate-fade-in">
+                    <img src="{{ post.image_url }}" alt="{{ post.title }}" 
+                         class="img-fluid rounded-4 shadow-lg w-100" style="max-height: 500px; object-fit: cover;">
+                </div>
+                {% endif %}
+                
+                <!-- Post Content -->
+                <article class="blog-post-content animate-fade-in-up">
+                    {{ post.content|safe }}
+                </article>
+                
+                <!-- Share Buttons -->
+                <div class="border-top border-bottom py-4 my-5" style="border-color: var(--border-color) !important;">
+                    <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+                        <span class="fw-semibold">Share this article:</span>
+                        <div class="d-flex gap-2">
+                            <a href="https://twitter.com/intent/tweet?url={{ request.url }}&text={{ post.title }}" 
+                               target="_blank" class="btn btn-outline-primary btn-sm" aria-label="Share on Twitter">
+                                <i class="bi bi-twitter-x"></i>
+                            </a>
+                            <a href="https://www.facebook.com/sharer/sharer.php?u={{ request.url }}" 
+                               target="_blank" class="btn btn-outline-primary btn-sm" aria-label="Share on Facebook">
+                                <i class="bi bi-facebook"></i>
+                            </a>
+                            <a href="https://www.linkedin.com/shareArticle?mini=true&url={{ request.url }}&title={{ post.title }}" 
+                               target="_blank" class="btn btn-outline-primary btn-sm" aria-label="Share on LinkedIn">
+                                <i class="bi bi-linkedin"></i>
+                            </a>
+                            <a href="mailto:?subject={{ post.title }}&body=Check out this article: {{ request.url }}" 
+                               class="btn btn-outline-primary btn-sm" aria-label="Share via Email">
+                                <i class="bi bi-envelope"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="row justify-content-center text-center">
+            <div class="col-lg-6 animate-on-scroll">
+                <h3 class="mb-3">Support Our Mission</h3>
+                <p class="mb-4" style="color: var(--text-secondary);">Your donation helps us continue our work in education, healthcare, and community development.</p>
+                <a href="{{ url_for('donate') }}" class="btn btn-primary btn-lg">Donate Now</a>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

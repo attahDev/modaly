@@ -1,0 +1,103 @@
+{% extends 'base.html' %}
+
+{% block title %}Blog - Modaly{% endblock %}
+
+{% block content %}
+<!-- Header -->
+<section class="hero-section" style="padding: 8rem 0 4rem;">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 hero-content">
+                <h1 class="hero-title animate-fade-in-up" style="font-size: 3rem;">Our Blog</h1>
+                <p class="hero-subtitle animate-fade-in-up delay-1">
+                    Stories, updates, and insights from our work in communities around the world.
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Category Filter -->
+{% if categories %}
+<section class="py-3 bg-light border-bottom">
+    <div class="container">
+        <div class="d-flex flex-wrap gap-2 justify-content-center">
+            <a href="{{ url_for('blog') }}" 
+               class="btn btn-sm {{ 'btn-primary' if not current_category else 'btn-outline-primary' }}">
+                All Posts
+            </a>
+            {% for category in categories %}
+            <a href="{{ url_for('blog', category=category) }}" 
+               class="btn btn-sm {{ 'btn-primary' if current_category == category else 'btn-outline-primary' }}">
+                {{ category }}
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- Blog Content -->
+<section class="py-5">
+    <div class="container">
+        <!-- Posts Grid -->
+        {% if posts.items %}
+        <div class="row g-4">
+            {% for post in posts.items %}
+            <div class="col-md-6 col-lg-4 animate-on-scroll">
+                <div class="card blog-card h-100">
+                    <div class="card-img-wrapper">
+                        {% if post.image_url %}
+                        <img src="{{ post.image_url }}" class="card-img-top" alt="{{ post.title }}">
+                        {% else %}
+                        <div class="card-img-top img-placeholder" style="height: 200px;">
+                            <i class="bi bi-image fs-1"></i>
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="card-body">
+                        <div class="d-flex align-items-center gap-2 mb-2">
+                            <span class="badge bg-primary bg-opacity-10 text-primary">{{ post.category }}</span>
+                            <small style="color: var(--text-muted);">{{ post.created_at[:10] if post.created_at is string else post.created_at.strftime('%b %d, %Y') }}</small>
+                        </div>
+                        <h5 class="card-title">{{ post.title }}</h5>
+                        <p class="card-text">{{ post.excerpt[:120] }}{% if post.excerpt|length > 120 %}...{% endif %}</p>
+                    </div>
+                    <div class="card-footer bg-transparent border-0 pt-0 pb-3">
+                        <a href="{{ url_for('blog_post', post_id=post.id) }}" class="btn btn-outline-primary btn-sm">
+                            Read More<i class="bi bi-arrow-right ms-2"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        {% else %}
+        <!-- No Posts -->
+        <div class="text-center py-5">
+            <i class="bi bi-journal-x fs-1 mb-3 d-block" style="color: var(--text-muted);"></i>
+            <h3>No posts yet</h3>
+            <p style="color: var(--text-muted);">Check back soon for updates from our team.</p>
+            <a href="{{ url_for('index') }}" class="btn btn-primary">Back to Home</a>
+        </div>
+        {% endif %}
+    </div>
+</section>
+
+<!-- Newsletter CTA -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-6 text-center animate-on-scroll">
+                <h3 class="mb-3">Stay Updated</h3>
+                <p class="mb-4" style="color: var(--text-secondary);">Subscribe to our newsletter to receive the latest news and updates from Modaly.</p>
+                <form class="d-flex gap-2 justify-content-center flex-wrap">
+                    <input type="email" class="form-control" style="max-width: 300px;" placeholder="Enter your email">
+                    <button type="submit" class="btn btn-primary">Subscribe</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

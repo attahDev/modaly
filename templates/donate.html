@@ -1,0 +1,187 @@
+{% extends 'base.html' %}
+
+{% block title %}Donate - Modaly{% endblock %}
+
+{% block content %}
+<!-- Header -->
+<section class="hero-section" style="padding: 8rem 0 4rem;">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 hero-content">
+                <h1 class="hero-title animate-fade-in-up" style="font-size: 3rem;">Make a Donation</h1>
+                <p class="hero-subtitle animate-fade-in-up delay-1">
+                    Your generosity helps us continue our mission to empower communities and transform lives.
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Donation Content -->
+<section class="py-5">
+    <div class="container">
+        <div class="row g-5">
+            <!-- Donation Form -->
+            <div class="col-lg-7 animate-on-scroll">
+                <div class="card">
+                    <div class="card-body p-4 p-lg-5">
+                        <h3 class="mb-4">Choose Your Donation Amount</h3>
+                        
+                        <form method="POST" action="{{ url_for('donate') }}">
+                            <!-- Amount Selection -->
+                            <div class="mb-4">
+                                <label class="form-label">Select Amount</label>
+                                <div class="row g-2">
+                                    <div class="col-4 col-sm-3">
+                                        <input type="radio" class="btn-check" name="amount" id="amt25" value="25">
+                                        <label class="btn btn-outline-primary w-100 py-3" for="amt25">$25</label>
+                                    </div>
+                                    <div class="col-4 col-sm-3">
+                                        <input type="radio" class="btn-check" name="amount" id="amt50" value="50" checked>
+                                        <label class="btn btn-outline-primary w-100 py-3" for="amt50">$50</label>
+                                    </div>
+                                    <div class="col-4 col-sm-3">
+                                        <input type="radio" class="btn-check" name="amount" id="amt100" value="100">
+                                        <label class="btn btn-outline-primary w-100 py-3" for="amt100">$100</label>
+                                    </div>
+                                    <div class="col-4 col-sm-3">
+                                        <input type="radio" class="btn-check" name="amount" id="amt250" value="250">
+                                        <label class="btn btn-outline-primary w-100 py-3" for="amt250">$250</label>
+                                    </div>
+                                    <div class="col-4 col-sm-3">
+                                        <input type="radio" class="btn-check" name="amount" id="amt500" value="500">
+                                        <label class="btn btn-outline-primary w-100 py-3" for="amt500">$500</label>
+                                    </div>
+                                    <div class="col-4 col-sm-3">
+                                        <input type="radio" class="btn-check" name="amount" id="amt1000" value="1000">
+                                        <label class="btn btn-outline-primary w-100 py-3" for="amt1000">$1,000</label>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Custom Amount -->
+                            <div class="mb-4">
+                                <label for="custom_amount" class="form-label">Or Enter Custom Amount</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">$</span>
+                                    <input type="number" class="form-control" id="custom_amount" name="custom_amount" 
+                                           placeholder="Enter amount" min="1" step="0.01">
+                                </div>
+                            </div>
+                            
+                            <hr class="my-4" style="border-color: var(--border-color);">
+                            
+                            <!-- Personal Info -->
+                            <h5 class="mb-3">Your Information</h5>
+                            <div class="row g-3">
+                                <div class="col-12">
+                                    <label for="name" class="form-label">Full Name <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="name" name="name" required placeholder="John Doe">
+                                </div>
+                                <div class="col-12">
+                                    <label for="email" class="form-label">Email Address <span class="text-danger">*</span></label>
+                                    <input type="email" class="form-control" id="email" name="email" required placeholder="john@example.com">
+                                </div>
+                                <div class="col-12">
+                                    <label for="message" class="form-label">Message (Optional)</label>
+                                    <textarea class="form-control" id="message" name="message" rows="3" placeholder="Add a personal message..."></textarea>
+                                </div>
+                                <div class="col-12">
+                                    <div class="alert alert-info mb-3">
+                                        <i class="bi bi-info-circle me-2"></i>
+                                        <strong>Payment Integration:</strong> To process actual payments, integrate with Stripe, PayPal, or Flutterwave. Currently saves donation information only.
+                                    </div>
+                                </div>
+                                <div class="col-12">
+                                    <button type="submit" class="btn btn-primary btn-lg w-100">
+                                        <i class="bi bi-heart-fill me-2"></i>Record Donation
+                                    </button>
+                                    <p class="text-center mt-2 small" style="color: var(--text-muted);">
+                                        <i class="bi bi-lock-fill me-1"></i> Secure donation processing
+                                    </p>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Impact Info -->
+            <div class="col-lg-5 animate-on-scroll">
+                <div class="card mb-4">
+                    <div class="card-body p-4">
+                        <h5 class="mb-4">Your Impact</h5>
+                        <div class="d-flex align-items-start mb-4">
+                            <div class="badge bg-primary rounded-circle p-2 me-3">
+                                <i class="bi bi-check-lg"></i>
+                            </div>
+                            <div>
+                                <h6 class="mb-1">$25</h6>
+                                <p class="mb-0 small" style="color: var(--text-secondary);">Provides school supplies for one child for a semester</p>
+                            </div>
+                        </div>
+                        <div class="d-flex align-items-start mb-4">
+                            <div class="badge bg-primary rounded-circle p-2 me-3">
+                                <i class="bi bi-check-lg"></i>
+                            </div>
+                            <div>
+                                <h6 class="mb-1">$50</h6>
+                                <p class="mb-0 small" style="color: var(--text-secondary);">Funds a healthcare checkup for a family</p>
+                            </div>
+                        </div>
+                        <div class="d-flex align-items-start mb-4">
+                            <div class="badge bg-primary rounded-circle p-2 me-3">
+                                <i class="bi bi-check-lg"></i>
+                            </div>
+                            <div>
+                                <h6 class="mb-1">$100</h6>
+                                <p class="mb-0 small" style="color: var(--text-secondary);">Supports a month of skills training for one person</p>
+                            </div>
+                        </div>
+                        <div class="d-flex align-items-start">
+                            <div class="badge bg-primary rounded-circle p-2 me-3">
+                                <i class="bi bi-check-lg"></i>
+                            </div>
+                            <div>
+                                <h6 class="mb-1">$250+</h6>
+                                <p class="mb-0 small" style="color: var(--text-secondary);">Helps launch a small business for a family</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card bg-primary text-white">
+                    <div class="card-body p-4 text-center">
+                        <i class="bi bi-shield-check fs-1 mb-3"></i>
+                        <h5>Secure Donation</h5>
+                        <p class="mb-3 opacity-75 small">Your donation is secure and tax-deductible. Modaly Inc. is a registered 501(c)(3) non-profit organization.</p>
+                        <ul class="list-unstyled small opacity-75 mb-0 text-start">
+                            <li class="mb-1"><i class="bi bi-check2 me-2"></i>100% Transparency</li>
+                            <li class="mb-1"><i class="bi bi-check2 me-2"></i>Direct Impact</li>
+                            <li><i class="bi bi-check2 me-2"></i>Regular Reports</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Clear preset amount when custom amount is entered
+    document.getElementById('custom_amount').addEventListener('input', function() {
+        if (this.value) {
+            document.querySelectorAll('input[name="amount"]').forEach(r => r.checked = false);
+        }
+    });
+    
+    // Clear custom amount when preset is selected
+    document.querySelectorAll('input[name="amount"]').forEach(radio => {
+        radio.addEventListener('change', function() {
+            document.getElementById('custom_amount').value = '';
+        });
+    });
+</script>
+{% endblock %}

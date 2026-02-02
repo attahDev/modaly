@@ -1,0 +1,171 @@
+{% extends 'admin/base.html' %}
+
+{% block title %}Dashboard{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+
+{% block content %}
+<!-- Stats Cards -->
+<div class="row g-4 mb-4">
+    <div class="col-sm-6 col-xl-3">
+        <div class="stat-card">
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <div class="stat-label">Total Posts</div>
+                    <div class="stat-value">{{ stats.total_posts }}</div>
+                </div>
+                <div class="stat-icon bg-primary bg-opacity-10 text-primary">
+                    <i class="bi bi-file-earmark-text fs-4"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="stat-card">
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <div class="stat-label">Messages</div>
+                    <div class="stat-value">{{ stats.total_messages }}</div>
+                </div>
+                <div class="stat-icon bg-success bg-opacity-10 text-success">
+                    <i class="bi bi-envelope fs-4"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="stat-card">
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <div class="stat-label">Donations</div>
+                    <div class="stat-value">{{ stats.total_donations }}</div>
+                </div>
+                <div class="stat-icon bg-warning bg-opacity-10 text-warning">
+                    <i class="bi bi-currency-dollar fs-4"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="stat-card">
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <div class="stat-label">Total Raised</div>
+                    <div class="stat-value">${{ "%.2f"|format(stats.donation_sum) }}</div>
+                </div>
+                <div class="stat-icon bg-danger bg-opacity-10 text-danger">
+                    <i class="bi bi-heart fs-4"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Recent Posts -->
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-header d-flex align-items-center justify-content-between">
+                <h6 class="mb-0">Recent Posts</h6>
+                <a href="{{ url_for('admin_new_post') }}" class="btn btn-primary btn-sm">
+                    <i class="bi bi-plus me-1"></i>New Post
+                </a>
+            </div>
+            <div class="card-body p-0">
+                {% if recent_posts %}
+                <div class="list-group list-group-flush">
+                    {% for post in recent_posts %}
+                    <a href="{{ url_for('admin_edit_post', post_id=post.id) }}" class="list-group-item list-group-item-action">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <h6 class="mb-1">{{ post.title }}</h6>
+                                <small style="color: var(--text-muted);">{{ post.category }} • {{ post.created_at[:10] if post.created_at is string else post.created_at.strftime('%b %d, %Y') }}</small>
+                            </div>
+                            <span class="badge bg-{{ 'success' if post.published else 'secondary' }}">
+                                {{ 'Published' if post.published else 'Draft' }}
+                            </span>
+                        </div>
+                    </a>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="p-4 text-center" style="color: var(--text-muted);">
+                    <i class="bi bi-file-earmark-text fs-1 mb-2 d-block"></i>
+                    <p class="mb-0">No posts yet</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Recent Messages -->
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-header d-flex align-items-center justify-content-between">
+                <h6 class="mb-0">Recent Messages</h6>
+                <a href="{{ url_for('admin_messages') }}" class="btn btn-outline-primary btn-sm">View All</a>
+            </div>
+            <div class="card-body p-0">
+                {% if recent_messages %}
+                <div class="list-group list-group-flush">
+                    {% for msg in recent_messages %}
+                    <div class="list-group-item">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <h6 class="mb-1">{{ msg.name }}</h6>
+                                <p class="mb-1 small" style="color: var(--text-secondary);">{{ msg.message[:80] }}{% if msg.message|length > 80 %}...{% endif %}</p>
+                                <small style="color: var(--text-muted);">{{ msg.created_at[:10] if msg.created_at is string else msg.created_at.strftime('%b %d, %Y') }}</small>
+                            </div>
+                            <span class="badge bg-{{ 'warning' if not msg.read else 'secondary' }}">
+                                {{ 'New' if not msg.read else 'Read' }}
+                            </span>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="p-4 text-center" style="color: var(--text-muted);">
+                    <i class="bi bi-envelope fs-1 mb-2 d-block"></i>
+                    <p class="mb-0">No messages yet</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Recent Donations -->
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-header d-flex align-items-center justify-content-between">
+                <h6 class="mb-0">Recent Donations</h6>
+                <a href="{{ url_for('admin_donations') }}" class="btn btn-outline-primary btn-sm">View All</a>
+            </div>
+            <div class="card-body p-0">
+                {% if recent_donations %}
+                <div class="list-group list-group-flush">
+                    {% for donation in recent_donations %}
+                    <div class="list-group-item">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div class="flex-grow-1">
+                                <h6 class="mb-1">{{ donation.name }}</h6>
+                                <p class="mb-1 small" style="color: var(--text-secondary);">{{ donation.email }}</p>
+                                {% if donation.message %}
+                                <p class="mb-1 small text-muted">{{ donation.message[:60] }}{% if donation.message|length > 60 %}...{% endif %}</p>
+                                {% endif %}
+                                <small style="color: var(--text-muted);">{{ donation.created_at.strftime('%b %d, %Y') }}</small>
+                            </div>
+                            <span class="badge bg-success fs-6">${{ "%.2f"|format(donation.amount) }}</span>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="p-4 text-center" style="color: var(--text-muted);">
+                    <i class="bi bi-heart fs-1 mb-2 d-block"></i>
+                    <p class="mb-0">No donations yet</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,142 @@
+{% extends 'admin/base.html' %}
+
+{% block title %}{{ 'Edit' if post else 'New' }} Post{% endblock %}
+{% block page_title %}{{ 'Edit' if post else 'New' }} Post{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-body p-4">
+                <form method="POST" enctype="multipart/form-data">
+                    <div class="mb-4">
+                        <label for="title" class="form-label">Title <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control form-control-lg" id="title" name="title" 
+                               value="{{ post.title if post else '' }}" required placeholder="Enter post title">
+                    </div>
+                    
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <label for="category" class="form-label">Category <span class="text-danger">*</span></label>
+                            <select class="form-select" id="category" name="category" required>
+                                <option value="">Select category</option>
+                                <option value="Education" {{ 'selected' if post and post.category == 'Education' }}>Education</option>
+                                <option value="Healthcare" {{ 'selected' if post and post.category == 'Healthcare' }}>Healthcare</option>
+                                <option value="Community" {{ 'selected' if post and post.category == 'Community' }}>Community</option>
+                                <option value="Events" {{ 'selected' if post and post.category == 'Events' }}>Events</option>
+                                <option value="News" {{ 'selected' if post and post.category == 'News' }}>News</option>
+                                <option value="Stories" {{ 'selected' if post and post.category == 'Stories' }}>Stories</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="author" class="form-label">Author</label>
+                            <input type="text" class="form-control" id="author" name="author" 
+                                   value="{{ post.author if post else 'Modaly Team' }}" placeholder="Author name">
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label for="excerpt" class="form-label">Subtitle <span class="text-danger">*</span></label>
+                        <textarea class="form-control" id="excerpt" name="excerpt" rows="2" required 
+                                  placeholder="Brief summary of the post">{{ post.excerpt if post else '' }}</textarea>
+                        <div class="form-text">A short summary that appears on blog listing pages.</div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label for="content" class="form-label">Content <span class="text-danger">*</span></label>
+                        <textarea class="form-control" id="content" name="content" rows="15" required 
+                                  placeholder="Write your post content here... (HTML supported)">{{ post.content if post else '' }}</textarea>
+                        <div class="form-text">HTML tags are supported for formatting.</div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label for="image_url" class="form-label">Featured Image URL</label>
+                        <input type="url" class="form-control" id="image_url" name="image_url" 
+                               value="{{ post.image_url if post else '' }}" placeholder="https://example.com/image.jpg">
+                        <div class="form-text">Enter an image URL or upload an image below.</div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label for="image_file" class="form-label">Or Upload Image</label>
+                        <input type="file" class="form-control" id="image_file" name="image_file" accept="image/*">
+                    </div>
+                    
+                    <!-- Image Preview -->
+                    <div class="mb-4 {{ 'd-none' if not post or not post.image_url }}" id="imagePreview">
+                        <label class="form-label">Preview</label>
+                        <img src="{{ post.image_url if post else '' }}" id="previewImg" class="img-fluid rounded" 
+                             style="max-height: 200px;">
+                    </div>
+                    
+                    <div class="mb-4">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="published" name="published" 
+                            {{ 'checked' if post and post.published }}>
+                     <label class="form-check-label" for="published">Publish immediately</label>
+                    </div>
+                    </div>
+                    
+                    <hr class="my-4" style="border-color: var(--border-color);">
+                    
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ url_for('admin_posts') }}" class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-left me-1"></i>Cancel
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-check-lg me-1"></i>{{ 'Update' if post else 'Create' }} Post
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Sidebar Tips -->
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header">
+                <h6 class="mb-0"><i class="bi bi-lightbulb me-2"></i>Tips</h6>
+            </div>
+            <div class="card-body">
+                <ul class="list-unstyled mb-0 small" style="color: var(--text-secondary);">
+                    <li class="mb-2"><i class="bi bi-check text-success me-2"></i>Use clear, descriptive titles</li>
+                    <li class="mb-2"><i class="bi bi-check text-success me-2"></i>Keep excerpts under 200 characters</li>
+                    <li class="mb-2"><i class="bi bi-check text-success me-2"></i>Use high-quality images (16:9 ratio)</li>
+                    <li class="mb-2"><i class="bi bi-check text-success me-2"></i>Use HTML for formatting: &lt;h2&gt;, &lt;p&gt;, &lt;ul&gt;</li>
+                    <li><i class="bi bi-check text-success me-2"></i>Save as draft to review before publishing</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Image URL preview
+    document.getElementById('image_url').addEventListener('input', function() {
+        const preview = document.getElementById('imagePreview');
+        const img = document.getElementById('previewImg');
+        if (this.value) {
+            img.src = this.value;
+            preview.classList.remove('d-none');
+        } else {
+            preview.classList.add('d-none');
+        }
+    });
+    
+    // Image file preview
+    document.getElementById('image_file').addEventListener('change', function() {
+        const file = this.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('previewImg').src = e.target.result;
+                document.getElementById('imagePreview').classList.remove('d-none');
+                document.getElementById('image_url').value = '';
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+</script>
+{% endblock %}

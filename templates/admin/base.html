@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Admin{% endblock %} - Modaly</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    
+    <!-- Custom CSS -->
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+    
+    <style>
+        .admin-sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            width: 260px;
+            background-color: var(--bg-card);
+            border-right: 1px solid var(--border-color);
+            z-index: 1000;
+            transition: transform 0.3s ease;
+        }
+        
+        .admin-sidebar-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .admin-sidebar-menu {
+            padding: 1rem;
+        }
+        
+        .admin-sidebar-menu .nav-link {
+            color: var(--text-secondary);
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 0.25rem;
+            transition: all 0.2s ease;
+        }
+        
+        .admin-sidebar-menu .nav-link:hover,
+        .admin-sidebar-menu .nav-link.active {
+            color: var(--primary);
+            background-color: rgba(37, 99, 235, 0.1);
+        }
+        
+        .admin-sidebar-menu .nav-link i {
+            width: 24px;
+        }
+        
+        .admin-main {
+            margin-left: 260px;
+            min-height: 100vh;
+            background-color: var(--bg-secondary);
+        }
+        
+        .admin-header {
+            background-color: var(--bg-card);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1rem 1.5rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .admin-content {
+            padding: 1.5rem;
+        }
+        
+        @media (max-width: 991.98px) {
+            .admin-sidebar {
+                transform: translateX(-100%);
+            }
+            
+            .admin-sidebar.show {
+                transform: translateX(0);
+            }
+            
+            .admin-main {
+                margin-left: 0;
+            }
+            
+            .admin-overlay {
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0, 0, 0, 0.5);
+                z-index: 999;
+            }
+            
+            .admin-overlay.show {
+                display: block;
+            }
+        }
+    </style>
+    {% block head %}{% endblock %}
+</head>
+<body>
+    <!-- Sidebar -->
+    <aside class="admin-sidebar" id="adminSidebar">
+        <div class="admin-sidebar-header">
+            <a href="{{ url_for('admin_dashboard') }}" class="text-decoration-none">
+                <h5 class="mb-0 text-primary"><i class="bi bi-heart-pulse-fill me-2"></i>Modaly Admin</h5>
+            </a>
+        </div>
+        <nav class="admin-sidebar-menu">
+            <ul class="nav flex-column">
+                <li class="nav-item">
+                    <a class="nav-link {{ 'active' if request.endpoint == 'admin_dashboard' }}" href="{{ url_for('admin_dashboard') }}">
+                        <i class="bi bi-speedometer2 me-2"></i>Dashboard
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {{ 'active' if request.endpoint in ['admin_posts', 'admin_new_post', 'admin_edit_post'] }}" href="{{ url_for('admin_posts') }}">
+                        <i class="bi bi-file-earmark-text me-2"></i>Blog Posts
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {{ 'active' if request.endpoint == 'admin_messages' }}" href="{{ url_for('admin_messages') }}">
+                        <i class="bi bi-envelope me-2"></i>Messages
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {{ 'active' if request.endpoint == 'admin_donations' }}" href="{{ url_for('admin_donations') }}">
+                        <i class="bi bi-currency-dollar me-2"></i>Donations
+                    </a>
+                </li>
+            </ul>
+            
+            <hr class="my-3" style="border-color: var(--border-color);">
+            
+            <ul class="nav flex-column">
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('index') }}" target="_blank">
+                        <i class="bi bi-box-arrow-up-right me-2"></i>View Website
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-danger" href="{{ url_for('logout') }}">
+                        <i class="bi bi-box-arrow-left me-2"></i>Logout
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </aside>
+    
+    <!-- Overlay for mobile -->
+    <div class="admin-overlay" id="adminOverlay"></div>
+    
+    <!-- Main Content -->
+    <main class="admin-main">
+        <!-- Header -->
+        <header class="admin-header">
+            <div class="d-flex align-items-center justify-content-between">
+                <div class="d-flex align-items-center">
+                    <button class="btn btn-link d-lg-none me-2 p-0" id="sidebarToggle">
+                        <i class="bi bi-list fs-4"></i>
+                    </button>
+                    <h5 class="mb-0">{% block page_title %}Dashboard{% endblock %}</h5>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                    <button class="theme-toggle" id="themeToggle" type="button" aria-label="Toggle theme">
+                        <i class="bi bi-moon-fill moon-icon"></i>
+                        <i class="bi bi-sun-fill sun-icon"></i>
+                    </button>
+                </div>
+            </div>
+        </header>
+        
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+            <div class="admin-content pb-0">
+                {% for category, message in messages %}
+                <div class="alert alert-{{ category if category != 'message' else 'info' }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+        {% endwith %}
+        
+        <!-- Page Content -->
+        <div class="admin-content">
+            {% block content %}{% endblock %}
+        </div>
+    </main>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Custom JS -->
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    
+    <script>
+        // Mobile sidebar toggle
+        const sidebar = document.getElementById('adminSidebar');
+        const overlay = document.getElementById('adminOverlay');
+        const toggle = document.getElementById('sidebarToggle');
+        
+        toggle?.addEventListener('click', () => {
+            sidebar.classList.toggle('show');
+            overlay.classList.toggle('show');
+        });
+        
+        overlay?.addEventListener('click', () => {
+            sidebar.classList.remove('show');
+            overlay.classList.remove('show');
+        });
+    </script>
+    
+    {% block scripts %}{% endblock %}
+</body>
+</html>

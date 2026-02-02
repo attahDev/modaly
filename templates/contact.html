@@ -1,0 +1,122 @@
+{% extends 'base.html' %}
+
+{% block title %}Contact Us - Modaly{% endblock %}
+
+{% block content %}
+<!-- Header -->
+<section class="hero-section" style="padding: 8rem 0 4rem;">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 hero-content">
+                <h1 class="hero-title animate-fade-in-up" style="font-size: 3rem;">Contact Us</h1>
+                <p class="hero-subtitle animate-fade-in-up delay-1">
+                    Have questions or want to get involved? We'd love to hear from you.
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Contact Content -->
+<section class="py-5">
+    <div class="container">
+        <div class="row g-5">
+            <!-- Contact Info -->
+            <div class="col-lg-5 animate-on-scroll">
+                <h3 class="mb-4">Get In Touch</h3>
+                <p class="mb-4" style="color: var(--text-secondary);">
+                    Have questions about our programs or want to get involved? Reach out to us and we'll get back to you as soon as possible.
+                </p>
+                
+                <div class="d-flex mb-4">
+                    <div class="flex-shrink-0">
+                        <div class="icon-wrapper" style="width: 50px; height: 50px; margin: 0;">
+                            <i class="bi bi-geo-alt" style="font-size: 1.25rem;"></i>
+                        </div>
+                    </div>
+                    <div class="ms-3">
+                        <h6 class="mb-1">Location</h6>
+                        <p class="mb-0" style="color: var(--text-secondary);">Maryland, USA</p>
+                    </div>
+                </div>
+                
+                <div class="d-flex mb-4">
+                    <div class="flex-shrink-0">
+                        <div class="icon-wrapper" style="width: 50px; height: 50px; margin: 0;">
+                            <i class="bi bi-envelope" style="font-size: 1.25rem;"></i>
+                        </div>
+                    </div>
+                    <div class="ms-3">
+                        <h6 class="mb-1">Email</h6>
+                        <a href="mailto:info@modaly.org" style="color: var(--text-secondary);">info@modaly.org</a>
+                    </div>
+                </div>
+                
+                <div class="d-flex mb-4">
+                    <div class="flex-shrink-0">
+                        <div class="icon-wrapper" style="width: 50px; height: 50px; margin: 0;">
+                            <i class="bi bi-globe" style="font-size: 1.25rem;"></i>
+                        </div>
+                    </div>
+                    <div class="ms-3">
+                        <h6 class="mb-1">Website</h6>
+                        <p class="mb-0" style="color: var(--text-secondary);">www.modaly.org</p>
+                    </div>
+                </div>
+
+                <hr class="my-4" style="border-color: var(--border-color);">
+
+                <h6 class="mb-3">Follow Us</h6>
+                <div class="social-links">
+                    <a href="#" aria-label="Facebook"><i class="bi bi-facebook"></i></a>
+                    <a href="#" aria-label="Twitter"><i class="bi bi-twitter-x"></i></a>
+                    <a href="#" aria-label="Instagram"><i class="bi bi-instagram"></i></a>
+                    <a href="#" aria-label="LinkedIn"><i class="bi bi-linkedin"></i></a>
+                </div>
+            </div>
+
+            <!-- Contact Form -->
+            <div class="col-lg-7 animate-on-scroll">
+                <div class="card">
+                    <div class="card-body p-4 p-lg-5">
+                        <h4 class="mb-4">Send Us a Message</h4>
+                        
+                        <form method="POST" action="{{ url_for('contact') }}">
+                            <div class="row g-3">
+                                <div class="col-12">
+                                    <label for="name" class="form-label">Full Name <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="name" name="name" required placeholder="John Doe">
+                                </div>
+                                <div class="col-12">
+                                    <label for="email" class="form-label">Email Address <span class="text-danger">*</span></label>
+                                    <input type="email" class="form-control" id="email" name="email" required placeholder="john@example.com">
+                                </div>
+                                <div class="col-12">
+                                    <label for="subject" class="form-label">Subject <span class="text-danger">*</span></label>
+                                    <select class="form-select" id="subject" name="subject" required>
+                                        <option value="" selected disabled>Select a subject</option>
+                                        <option value="General Inquiry">General Inquiry</option>
+                                        <option value="Volunteer Opportunities">Volunteer Opportunities</option>
+                                        <option value="Donation Questions">Donation Questions</option>
+                                        <option value="Partnership">Partnership</option>
+                                        <option value="Other">Other</option>
+                                    </select>
+                                </div>
+                                <div class="col-12">
+                                    <label for="message" class="form-label">Message <span class="text-danger">*</span></label>
+                                    <textarea class="form-control" id="message" name="message" rows="5" required placeholder="Your message..."></textarea>
+                                </div>
+                                <div class="col-12">
+                                    <button type="submit" class="btn btn-primary btn-lg w-100">
+                                        <i class="bi bi-send me-2"></i>Send Message
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

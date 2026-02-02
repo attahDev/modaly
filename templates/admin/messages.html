@@ -1,0 +1,81 @@
+{% extends 'admin/base.html' %}
+
+{% block title %}Messages - Admin{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h3 fw-bold mb-0">Contact Messages</h1>
+    <span class="badge bg-primary">{{ messages|length }} Total</span>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-0">
+        {% if messages %}
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="bg-light">
+                    <tr>
+                        <th class="ps-4">Status</th>
+                        <th>From</th>
+                        <th>Subject</th>
+                        <th>Message</th>
+                        <th>Date</th>
+                        <th class="pe-4">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for msg in messages %}
+                    <tr class="{{ 'table-warning' if not msg.read else '' }}">
+                        <td class="ps-4">
+                            {% if msg.read %}
+                            <span class="badge bg-secondary">Read</span>
+                            {% else %}
+                            <span class="badge bg-primary">New</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <strong>{{ msg.name }}</strong><br>
+                            <small class="text-muted">{{ msg.email }}</small>
+                        </td>
+                        <td>{{ msg.subject or 'No subject' }}</td>
+                        <td>{{ msg.message[:60] }}{% if msg.message|length > 60 %}...{% endif %}</td>
+                        <td class="text-muted">{{ msg.created_at.strftime('%b %d, %Y') }}</td>
+                        <td class="pe-4">
+                            <button class="btn btn-sm btn-outline-primary me-1" data-bs-toggle="modal" 
+                                    data-bs-target="#msgModal{{ msg.id }}">View</button>
+                        </td>
+                    </tr>
+                    {% endfor %} </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-5">
+            <p class="text-muted">No messages yet.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+{% for msg in messages %}
+<div class="modal fade" id="msgModal{{ msg.id }}" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">{{ msg.subject or 'Message' }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p><strong>From:</strong> {{ msg.name }}</p>
+                <p><strong>Email:</strong> {{ msg.email }}</p>
+                <p><strong>Date:</strong> {{ msg.created_at.strftime('%B %d, %Y at %H:%M') }}</p>
+                <hr>
+                <p class="mb-0">{{ msg.message }}</p>
+            </div>
+            <div class="modal-footer">
+                <a href="mailto:{{ msg.email }}" class="btn btn-primary" target="_blank">Reply via Email</a>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %} {% endblock %}

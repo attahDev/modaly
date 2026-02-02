@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+
+{% block title %}Page Not Found - Modaly{% endblock %}
+
+{% block content %}
+<section class="min-vh-100 d-flex align-items-center py-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-6 text-center fade-in">
+                <h1 class="display-1 fw-bold text-primary mb-3">404</h1>
+                <h2 class="h4 fw-semibold mb-3">Page Not Found</h2>
+                <p class="text-muted mb-4">
+                    The page you're looking for doesn't exist or has been moved.
+                </p>
+                <a href="{{ url_for('index') }}" class="btn btn-primary btn-lg px-4">
+                    <i class="bi bi-house me-2"></i>Back to Home
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
