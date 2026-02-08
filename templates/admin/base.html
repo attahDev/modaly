@@ -114,7 +114,7 @@
     <aside class="admin-sidebar" id="adminSidebar">
         <div class="admin-sidebar-header">
             <a href="{{ url_for('admin_dashboard') }}" class="text-decoration-none">
-                <h5 class="mb-0 text-primary"><i class="bi bi-heart-pulse-fill me-2"></i>Modaly Admin</h5>
+                <h5 class="mb-0 text-primary">Admin</h5>
             </a>
         </div>
         <nav class="admin-sidebar-menu">
@@ -172,12 +172,7 @@
                     </button>
                     <h5 class="mb-0">{% block page_title %}Dashboard{% endblock %}</h5>
                 </div>
-                <div class="d-flex align-items-center gap-2">
-                    <button class="theme-toggle" id="themeToggle" type="button" aria-label="Toggle theme">
-                        <i class="bi bi-moon-fill moon-icon"></i>
-                        <i class="bi bi-sun-fill sun-icon"></i>
-                    </button>
-                </div>
+
             </div>
         </header>
         

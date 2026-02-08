@@ -1,262 +1,400 @@
-/**
- * Modaly - Main JavaScript
- * Theme toggle, animations, and interactions
- */
+// ============================================
+// MODALY WEBSITE - SINGLE THEME SYSTEM
+// Dark Theme Removed - Company Branding Only
+// #1e1e1e Background + #7c3aed Purple
+// v3.0.0
+// ============================================
 
 (function() {
     'use strict';
 
-    // Declare bootstrap variable
-    const bootstrap = window.bootstrap;
+    // ============================================
+    // NAVBAR AUTO-HIDE/SHOW ON SCROLL
+    // ============================================
 
-    // ==========================================================================
-    // Theme Management
-    // ==========================================================================
-    
-    const ThemeManager = {
-        STORAGE_KEY: 'modaly-theme',
-        DARK: 'dark',
-        LIGHT: 'light',
-
-        init() {
-            this.applyStoredTheme();
-            this.bindToggle();
-        },
-
-        getStoredTheme() {
-            return localStorage.getItem(this.STORAGE_KEY);
-        },
-
-        getSystemTheme() {
-            return window.matchMedia('(prefers-color-scheme: dark)').matches 
-                ? this.DARK 
-                : this.LIGHT;
-        },
-
-        applyStoredTheme() {
-            const storedTheme = this.getStoredTheme();
-            const theme = storedTheme || this.getSystemTheme();
-            this.setTheme(theme);
-        },
-
-        setTheme(theme) {
-            document.documentElement.setAttribute('data-theme', theme);
-            localStorage.setItem(this.STORAGE_KEY, theme);
-        },
-
-        toggle() {
-            const currentTheme = document.documentElement.getAttribute('data-theme');
-            const newTheme = currentTheme === this.DARK ? this.LIGHT : this.DARK;
-            this.setTheme(newTheme);
-        },
-
-        bindToggle() {
-            const toggleBtn = document.getElementById('themeToggle');
-            if (toggleBtn) {
-                toggleBtn.addEventListener('click', () => this.toggle());
-            }
-        }
-    };
-
-    // ==========================================================================
-    // Navbar Scroll Effect
-    // ==========================================================================
-    
-    const NavbarScroll = {
-        navbar: null,
-        scrollThreshold: 50,
-
+    const NavbarManager = {
         init() {
             this.navbar = document.querySelector('.navbar');
-            if (this.navbar) {
-                this.handleScroll();
-                window.addEventListener('scroll', () => this.handleScroll(), { passive: true });
-            }
+            if (!this.navbar) return;
+
+            this.lastScrollTop = 0;
+            this.scrollThreshold = 5;
+            this.setupScrollEffect();
+        },
+
+        setupScrollEffect() {
+            let ticking = false;
+            
+            window.addEventListener('scroll', () => {
+                if (!ticking) {
+                    window.requestAnimationFrame(() => {
+                        this.handleScroll();
+                        ticking = false;
+                    });
+                    ticking = true;
+                }
+            });
         },
 
         handleScroll() {
-            if (window.scrollY > this.scrollThreshold) {
+            const currentScroll = window.pageYOffset || document.documentElement.scrollTop;
+            
+            // Add scrolled class when scrolled past threshold
+            if (currentScroll > 50) {
                 this.navbar.classList.add('scrolled');
             } else {
                 this.navbar.classList.remove('scrolled');
             }
-        }
-    };
-
-    // ==========================================================================
-    // Scroll Animations
-    // ==========================================================================
-    
-    const ScrollAnimations = {
-        observer: null,
-        animatedElements: [],
-
-        init() {
-            this.animatedElements = document.querySelectorAll('.animate-on-scroll');
             
-            if (this.animatedElements.length === 0) return;
-
-            if ('IntersectionObserver' in window) {
-                this.observer = new IntersectionObserver(
-                    (entries) => this.handleIntersection(entries),
-                    { threshold: 0.1, rootMargin: '0px 0px -50px 0px' }
-                );
-
-                this.animatedElements.forEach(el => this.observer.observe(el));
+            // Don't hide navbar at the very top of the page
+            if (currentScroll <= 0) {
+                this.navbar.classList.remove('navbar-hidden');
+                this.navbar.classList.add('navbar-visible');
+                this.lastScrollTop = currentScroll;
+                return;
+            }
+            
+            // Check scroll direction
+            if (Math.abs(currentScroll - this.lastScrollTop) < this.scrollThreshold) {
+                return;
+            }
+            
+            if (currentScroll > this.lastScrollTop && currentScroll > 100) {
+                // Scrolling down - hide navbar
+                this.navbar.classList.remove('navbar-visible');
+                this.navbar.classList.add('navbar-hidden');
             } else {
-                // Fallback for older browsers
-                this.animatedElements.forEach(el => el.classList.add('visible'));
+                // Scrolling up - show navbar
+                this.navbar.classList.remove('navbar-hidden');
+                this.navbar.classList.add('navbar-visible');
             }
-        },
-
-        handleIntersection(entries) {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('visible');
-                    this.observer.unobserve(entry.target);
-                }
-            });
+            
+            this.lastScrollTop = currentScroll;
         }
     };
 
-    // ==========================================================================
-    // Smooth Scroll for Anchor Links
-    // ==========================================================================
-    
-    const SmoothScroll = {
+    // ============================================
+    // ALERT AUTO-DISMISS
+    // ============================================
+
+    const AlertManager = {
+        DISMISS_DELAY: 5000, // 5 seconds
+
         init() {
-            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-                anchor.addEventListener('click', (e) => this.handleClick(e, anchor));
-            });
+            this.setupAutoDismiss();
         },
 
-        handleClick(e, anchor) {
-            const href = anchor.getAttribute('href');
-            if (href === '#') return;
-
-            const target = document.querySelector(href);
-            if (target) {
-                e.preventDefault();
-                const navbarHeight = document.querySelector('.navbar')?.offsetHeight || 0;
-                const targetPosition = target.getBoundingClientRect().top + window.scrollY - navbarHeight - 20;
-
-                window.scrollTo({
-                    top: targetPosition,
-                    behavior: 'smooth'
-                });
-
-                // Close mobile menu if open
-                const navbarCollapse = document.querySelector('.navbar-collapse');
-                if (navbarCollapse?.classList.contains('show')) {
-                    const bsCollapse = bootstrap.Collapse.getInstance(navbarCollapse);
-                    if (bsCollapse) bsCollapse.hide();
-                }
-            }
-        }
-    };
-
-    // ==========================================================================
-    // Form Enhancements
-    // ==========================================================================
-    
-    const FormEnhancements = {
-        init() {
-            this.initImagePreview();
-            this.initFormValidation();
-        },
-
-        initImagePreview() {
-            const imageUrlInput = document.getElementById('image_url');
-            const imageFileInput = document.getElementById('image_file');
-            const previewContainer = document.getElementById('imagePreview');
-            const previewImg = document.getElementById('previewImg');
-
-            if (imageUrlInput && previewContainer && previewImg) {
-                imageUrlInput.addEventListener('input', function() {
-                    if (this.value) {
-                        previewImg.src = this.value;
-                        previewContainer.classList.remove('d-none');
-                    } else {
-                        previewContainer.classList.add('d-none');
-                    }
-                });
-            }
-
-            if (imageFileInput && previewContainer && previewImg) {
-                imageFileInput.addEventListener('change', function() {
-                    const file = this.files[0];
-                    if (file) {
-                        const reader = new FileReader();
-                        reader.onload = function(e) {
-                            previewImg.src = e.target.result;
-                            previewContainer.classList.remove('d-none');
-                            if (imageUrlInput) imageUrlInput.value = '';
-                        };
-                        reader.readAsDataURL(file);
-                    }
-                });
-            }
-        },
-
-        initFormValidation() {
-            const forms = document.querySelectorAll('form[data-validate]');
-            forms.forEach(form => {
-                form.addEventListener('submit', function(e) {
-                    if (!form.checkValidity()) {
-                        e.preventDefault();
-                        e.stopPropagation();
-                    }
-                    form.classList.add('was-validated');
-                });
-            });
-        }
-    };
-
-    // ==========================================================================
-    // Delete Confirmation
-    // ==========================================================================
-    
-    const DeleteConfirmation = {
-        init() {
-            document.querySelectorAll('[data-confirm]').forEach(element => {
-                element.addEventListener('click', function(e) {
-                    const message = this.getAttribute('data-confirm') || 'Are you sure you want to delete this?';
-                    if (!confirm(message)) {
-                        e.preventDefault();
-                    }
-                });
-            });
-        }
-    };
-
-    // ==========================================================================
-    // Auto-hide Alerts
-    // ==========================================================================
-    
-    const AutoHideAlerts = {
-        init() {
-            const alerts = document.querySelectorAll('.alert:not(.alert-permanent)');
+        setupAutoDismiss() {
+            const alerts = document.querySelectorAll('.alert');
+            
             alerts.forEach(alert => {
                 setTimeout(() => {
-                    const bsAlert = bootstrap.Alert.getOrCreateInstance(alert);
-                    bsAlert.close();
-                }, 5000);
+                    if (typeof bootstrap !== 'undefined' && bootstrap.Alert) {
+                        const bsAlert = bootstrap.Alert.getOrCreateInstance(alert);
+                        bsAlert.close();
+                    }
+                }, this.DISMISS_DELAY);
             });
         }
     };
 
-    // ==========================================================================
-    // Initialize Everything
-    // ==========================================================================
-    
-    document.addEventListener('DOMContentLoaded', function() {
-        ThemeManager.init();
-        NavbarScroll.init();
-        ScrollAnimations.init();
+    // ============================================
+    // SMOOTH SCROLLING
+    // ============================================
+
+    const SmoothScroll = {
+        init() {
+            this.setupAnchorLinks();
+        },
+
+        setupAnchorLinks() {
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function(e) {
+                    const href = this.getAttribute('href');
+                    
+                    // Skip if href is just "#"
+                    if (href === '#' || href === '#!') return;
+                    
+                    const target = document.querySelector(href);
+                    if (target) {
+                        e.preventDefault();
+                        const offsetTop = target.offsetTop - 80; // Account for fixed navbar
+                        
+                        window.scrollTo({
+                            top: offsetTop,
+                            behavior: 'smooth'
+                        });
+
+                        // Update URL without triggering scroll
+                        history.pushState(null, null, href);
+                    }
+                });
+            });
+        }
+    };
+
+    // ============================================
+    // FORM VALIDATION ENHANCEMENT
+    // ============================================
+
+    const FormValidator = {
+        init() {
+            this.setupBootstrapValidation();
+        },
+
+        setupBootstrapValidation() {
+            const forms = document.querySelectorAll('.needs-validation');
+            
+            forms.forEach(form => {
+                form.addEventListener('submit', function(event) {
+                    if (!form.checkValidity()) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                    }
+                    
+                    form.classList.add('was-validated');
+                }, false);
+            });
+        }
+    };
+
+    // ============================================
+    // MOBILE MENU HANDLER
+    // ============================================
+
+    const MobileMenuManager = {
+        init() {
+            this.setupMobileMenuClose();
+        },
+
+        setupMobileMenuClose() {
+            const navLinks = document.querySelectorAll('.navbar-nav .nav-link');
+            const navbarCollapse = document.querySelector('.navbar-collapse');
+            
+            if (!navbarCollapse) return;
+            
+            navLinks.forEach(link => {
+                link.addEventListener('click', () => {
+                    if (window.innerWidth < 992) {
+                        if (typeof bootstrap !== 'undefined' && bootstrap.Collapse) {
+                            const bsCollapse = bootstrap.Collapse.getInstance(navbarCollapse);
+                            if (bsCollapse) {
+                                bsCollapse.hide();
+                            }
+                        }
+                    }
+                });
+            });
+        }
+    };
+
+    // ============================================
+    // DONATION AMOUNT SELECTOR
+    // ============================================
+
+    const DonationManager = {
+        init() {
+            this.setupAmountButtons();
+        },
+
+        setupAmountButtons() {
+            const amountButtons = document.querySelectorAll('.donation-amount-btn');
+            const customAmountInput = document.querySelector('#custom_amount');
+            const hiddenAmountInput = document.querySelector('#amount');
+            
+            if (!amountButtons.length) return;
+            
+            amountButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    // Remove active class from all buttons
+                    amountButtons.forEach(btn => btn.classList.remove('active'));
+                    
+                    // Add active class to clicked button
+                    this.classList.add('active');
+                    
+                    // Set the amount
+                    const amount = this.getAttribute('data-amount');
+                    if (hiddenAmountInput) {
+                        hiddenAmountInput.value = amount;
+                    }
+                    
+                    // Clear custom amount
+                    if (customAmountInput) {
+                        customAmountInput.value = '';
+                    }
+                });
+            });
+
+            // Handle custom amount input
+            if (customAmountInput) {
+                customAmountInput.addEventListener('input', function() {
+                    // Remove active class from all preset buttons
+                    amountButtons.forEach(btn => btn.classList.remove('active'));
+                    
+                    // Update hidden field
+                    if (hiddenAmountInput) {
+                        hiddenAmountInput.value = this.value;
+                    }
+                });
+            }
+        }
+    };
+
+    // ============================================
+    // IMAGE LAZY LOADING
+    // ============================================
+
+    const ImageLazyLoader = {
+        init() {
+            if ('loading' in HTMLImageElement.prototype) {
+                // Native lazy loading supported
+                const images = document.querySelectorAll('img[loading="lazy"]');
+                images.forEach(img => {
+                    if (img.dataset.src) {
+                        img.src = img.dataset.src;
+                    }
+                });
+            } else {
+                // Fallback for older browsers
+                this.loadPolyfill();
+            }
+        },
+
+        loadPolyfill() {
+            const script = document.createElement('script');
+            script.src = 'https://cdnjs.cloudflare.com/ajax/libs/lazysizes/5.3.2/lazysizes.min.js';
+            document.body.appendChild(script);
+        }
+    };
+
+    // ============================================
+    // ANALYTICS (Optional)
+    // ============================================
+
+    const Analytics = {
+        init() {
+            this.trackDonations();
+            this.trackFormSubmissions();
+        },
+
+        trackDonations() {
+            const donationForm = document.querySelector('form[action*="donate"]');
+            
+            if (donationForm) {
+                donationForm.addEventListener('submit', function() {
+                    console.log('Donation form submitted');
+                    
+                    // Send to analytics if configured
+                    if (typeof gtag !== 'undefined') {
+                        gtag('event', 'begin_donation');
+                    }
+                });
+            }
+        },
+
+        trackFormSubmissions() {
+            const contactForm = document.querySelector('form[action*="contact"]');
+            
+            if (contactForm) {
+                contactForm.addEventListener('submit', function() {
+                    console.log('Contact form submitted');
+                    
+                    if (typeof gtag !== 'undefined') {
+                        gtag('event', 'contact_form_submit');
+                    }
+                });
+            }
+        }
+    };
+
+    // ============================================
+    // ACCESSIBILITY ENHANCEMENTS
+    // ============================================
+
+    const A11y = {
+        init() {
+            this.setupKeyboardNavigation();
+        },
+
+        setupKeyboardNavigation() {
+            // Allow escape key to close mobile menu
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    const navbarCollapse = document.querySelector('.navbar-collapse.show');
+                    if (navbarCollapse && typeof bootstrap !== 'undefined' && bootstrap.Collapse) {
+                        const bsCollapse = bootstrap.Collapse.getInstance(navbarCollapse);
+                        if (bsCollapse) {
+                            bsCollapse.hide();
+                        }
+                    }
+                    
+                    // Close admin sidebar on mobile
+                    const adminSidebar = document.querySelector('.admin-sidebar.show');
+                    if (adminSidebar) {
+                        adminSidebar.classList.remove('show');
+                        const overlay = document.querySelector('.admin-overlay.show');
+                        if (overlay) {
+                            overlay.classList.remove('show');
+                        }
+                    }
+                }
+            });
+        }
+    };
+
+    // ============================================
+    // PERFORMANCE MONITORING
+    // ============================================
+
+    const Performance = {
+        init() {
+            this.logLoadTime();
+        },
+
+        logLoadTime() {
+            window.addEventListener('load', () => {
+                if (window.performance && window.performance.timing) {
+                    const loadTime = window.performance.timing.loadEventEnd - 
+                                   window.performance.timing.navigationStart;
+                    
+                    console.log(`✅ Page loaded in ${loadTime}ms`);
+                    console.log('🎨 Single theme system active (#1e1e1e + #7c3aed)');
+                }
+            });
+        }
+    };
+
+    // ============================================
+    // INITIALIZATION
+    // ============================================
+
+    function init() {
+        console.log('🚀 Modaly Website v3.0.0 - Single Theme System');
+        
+        // Core features
+        NavbarManager.init();
+        AlertManager.init();
         SmoothScroll.init();
-        FormEnhancements.init();
-        DeleteConfirmation.init();
-        AutoHideAlerts.init();
-    });
+        FormValidator.init();
+        MobileMenuManager.init();
+        
+        // Feature-specific
+        DonationManager.init();
+        ImageLazyLoader.init();
+        
+        // Enhancements
+        Analytics.init();
+        A11y.init();
+        Performance.init();
+
+        console.log('✨ All systems initialized');
+    }
+
+    // Initialize when DOM is ready
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+    } else {
+        init();
+    }
 
 })();
