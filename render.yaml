@@ -1,0 +1,21 @@
+services:
+  - type: web
+    name: modaly
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.0
+      - key: FLASK_ENV
+        value: production
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DATABASE_URL
+        fromDatabase:
+          name: modaly-db
+          property: connectionString
+    
+databases:
+  - name: modaly-db
+    plan: free

@@ -378,10 +378,6 @@ def admin_donations():
     return render_template('admin/donations.html', donations=donations, total=total)
 
 
-# =============================================================================
-# ERROR HANDLERS
-# =============================================================================
-
 @app.errorhandler(404)
 def page_not_found(e):
     return render_template('errors/404.html'), 404
@@ -393,9 +389,7 @@ def internal_error(e):
     return render_template('errors/500.html'), 500
 
 
-# =============================================================================
-# INIT DATABASE
-# =============================================================================
+
 
 def init_db():
     with app.app_context():
@@ -406,6 +400,56 @@ def init_db():
             db.session.add(admin)
             db.session.commit()
             print(f"Admin user created: {app.config['ADMIN_EMAIL']}")
+
+
+
+def init_db_on_startup():
+    with app.app_context():
+        try:
+
+            db.create_all()
+            print("=" * 60)
+            print("✅ DATABASE INITIALIZATION")
+            print("=" * 60)
+            print("✅ Database tables created/verified")
+            
+            # Get admin credentials from environment variables
+            admin_email = os.environ.get('ADMIN_EMAIL', 'admin@modaly.org')
+            admin_password = os.environ.get('ADMIN_PASSWORD', 'attah001')
+            
+            # Check if admin user already exists
+            existing_admin = User.query.filter_by(email=admin_email).first()
+            
+            if not existing_admin:
+                # Create admin user on first deployment
+                admin = User(email=admin_email)
+                admin.set_password(admin_password)
+                db.session.add(admin)
+                db.session.commit()
+                print(f"✅ Admin user created successfully!")
+                print(f"   Email: {admin_email}")
+                print(f"   Password: {admin_password}")
+            else:
+                print(f"ℹ️  Admin user already exists: {admin_email}")
+            
+            print("=" * 60)
+            print("✅ INITIALIZATION COMPLETE - App Ready!")
+            print("=" * 60)
+                
+        except Exception as e:
+            print("=" * 60)
+            print(f"⚠️  DATABASE INITIALIZATION ERROR")
+            print("=" * 60)
+            print(f"Error: {e}")
+            print("Attempting to rollback...")
+            db.session.rollback()
+            print("App will continue running. Check environment variables.")
+            print("=" * 60)
+
+# Initialize database when app starts (runs automatically on Render)
+print("\n🚀 Starting Modaly Application...")
+init_db_on_startup()
+print("✅ App initialization complete\n")
 
 
 if __name__ == '__main__':

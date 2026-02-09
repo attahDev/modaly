@@ -88,7 +88,7 @@ class DevelopmentConfig(Config):
 
 
 class ProductionConfig(Config):
-    """Production environment configuration"""
+    
     DEBUG = False
     TESTING = False
     
