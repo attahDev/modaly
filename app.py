@@ -94,10 +94,6 @@ def inject_globals():
     return {'current_year': datetime.now().year}
 
 
-# =============================================================================
-# PUBLIC ROUTES
-# =============================================================================
-
 @app.route('/')
 def index():
     recent_posts = BlogPost.query.filter_by(published=True)\
@@ -208,10 +204,6 @@ def media():
 
 
 
-# =============================================================================
-# AUTH ROUTES
-# =============================================================================
-
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if 'user_id' in session:
@@ -241,9 +233,6 @@ def logout():
     return redirect(url_for('index'))
 
 
-# =============================================================================
-# ADMIN ROUTES
-# =============================================================================
 
 @app.route('/admin')
 @login_required
@@ -413,15 +402,15 @@ def init_db_on_startup():
             print("=" * 60)
             print("✅ Database tables created/verified")
             
-            # Get admin credentials from environment variables
-            admin_email = os.environ.get('ADMIN_EMAIL', 'admin@modaly.org')
-            admin_password = os.environ.get('ADMIN_PASSWORD', 'attah001')
+           
+            admin_email = os.environ.get('ADMIN_EMAIL')
+            admin_password = os.environ.get('ADMIN_PASSWORD')
             
-            # Check if admin user already exists
+         
             existing_admin = User.query.filter_by(email=admin_email).first()
             
             if not existing_admin:
-                # Create admin user on first deployment
+                
                 admin = User(email=admin_email)
                 admin.set_password(admin_password)
                 db.session.add(admin)
@@ -446,7 +435,7 @@ def init_db_on_startup():
             print("App will continue running. Check environment variables.")
             print("=" * 60)
 
-# Initialize database when app starts (runs automatically on Render)
+
 print("\n🚀 Starting Modaly Application...")
 init_db_on_startup()
 print("✅ App initialization complete\n")
