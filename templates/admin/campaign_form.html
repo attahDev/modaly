@@ -1,0 +1,306 @@
+{% extends 'admin/base.html' %}
+
+{% block title %}{{ 'Edit' if campaign else 'New' }} Campaign{% endblock %}
+{% block page_title %}{{ 'Edit' if campaign else 'Create New' }} Media Campaign{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8">
+        <form method="POST" enctype="multipart/form-data">
+            
+            <!-- Basic Information -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h6 class="mb-0">Basic Information</h6>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label for="title" class="form-label">Campaign Title *</label>
+                        <input type="text" class="form-control" id="title" name="title" 
+                               value="{{ campaign.title if campaign else '' }}" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Short Description *</label>
+                        <textarea class="form-control" id="description" name="description" rows="3" 
+                                  required>{{ campaign.description if campaign else '' }}</textarea>
+                        <small class="text-muted">This appears on the media card (keep it brief)</small>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="category" class="form-label">Category *</label>
+                            <select class="form-select" id="category" name="category" required>
+                                {% for cat in categories %}
+                                <option value="{{ cat }}" 
+                                    {% if campaign and campaign.category == cat %}selected{% endif %}>
+                                    {{ cat }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="completion_date" class="form-label">Completion Date</label>
+                            <input type="text" class="form-control" id="completion_date" name="completion_date" 
+                                   value="{{ campaign.completion_date if campaign else '' }}" 
+                                   placeholder="e.g., January 2024">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Impact Metrics -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h6 class="mb-0">Impact Metrics</h6>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted small mb-3">Add up to 3 key statistics about this campaign's impact</p>
+                    
+                    <!-- Metric 1 -->
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <label for="metric1_value" class="form-label">Metric 1 Value</label>
+                            <input type="text" class="form-control" id="metric1_value" name="metric1_value" 
+                                   value="{{ campaign.metric1_value if campaign else '' }}" 
+                                   placeholder="e.g., 150+">
+                        </div>
+                        <div class="col-md-8">
+                            <label for="metric1_label" class="form-label">Metric 1 Label</label>
+                            <input type="text" class="form-control" id="metric1_label" name="metric1_label" 
+                                   value="{{ campaign.metric1_label if campaign else '' }}" 
+                                   placeholder="e.g., Students Reached">
+                        </div>
+                    </div>
+                    
+                    <!-- Metric 2 -->
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <label for="metric2_value" class="form-label">Metric 2 Value</label>
+                            <input type="text" class="form-control" id="metric2_value" name="metric2_value" 
+                                   value="{{ campaign.metric2_value if campaign else '' }}" 
+                                   placeholder="e.g., 12">
+                        </div>
+                        <div class="col-md-8">
+                            <label for="metric2_label" class="form-label">Metric 2 Label</label>
+                            <input type="text" class="form-control" id="metric2_label" name="metric2_label" 
+                                   value="{{ campaign.metric2_label if campaign else '' }}" 
+                                   placeholder="e.g., Schools Served">
+                        </div>
+                    </div>
+                    
+                    <!-- Metric 3 -->
+                    <div class="row">
+                        <div class="col-md-4">
+                            <label for="metric3_value" class="form-label">Metric 3 Value</label>
+                            <input type="text" class="form-control" id="metric3_value" name="metric3_value" 
+                                   value="{{ campaign.metric3_value if campaign else '' }}" 
+                                   placeholder="e.g., $5,000">
+                        </div>
+                        <div class="col-md-8">
+                            <label for="metric3_label" class="form-label">Metric 3 Label</label>
+                            <input type="text" class="form-control" id="metric3_label" name="metric3_label" 
+                                   value="{{ campaign.metric3_label if campaign else '' }}" 
+                                   placeholder="e.g., Value Distributed">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Detailed Information -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h6 class="mb-0">Detailed Information</h6>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label for="overview" class="form-label">Project Overview</label>
+                        <textarea class="form-control" id="overview" name="overview" rows="4">{{ campaign.overview if campaign else '' }}</textarea>
+                        <small class="text-muted">Detailed description shown in the modal</small>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="services_provided" class="form-label">Services/Items Provided</label>
+                        <textarea class="form-control" id="services_provided" name="services_provided" 
+                                  rows="6">{{ campaign.services_provided if campaign else '' }}</textarea>
+                        <small class="text-muted">Enter each item on a new line (will be displayed as a bullet list)</small>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Images -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h6 class="mb-0">
+                        <i class="bi bi-images me-2"></i>Campaign Images
+                    </h6>
+                </div>
+                <div class="card-body">
+                    {% if campaign and campaign.images %}
+                    <!-- Existing Images -->
+                    <div class="mb-4">
+                        <h6 class="mb-3">Current Images</h6>
+                        <div class="row g-3">
+                            {% for image in campaign.images|sort(attribute='display_order') %}
+                            <div class="col-md-4">
+                                <div class="card">
+                                    <img src="{{ image.image_url }}" class="card-img-top" alt="" 
+                                         style="height: 150px; object-fit: cover;">
+                                    <div class="card-body p-2">
+                                        {% if image.is_primary %}
+                                        <span class="badge bg-primary mb-2">Primary</span>
+                                        {% else %}
+                                        <form method="POST" class="d-inline" 
+                                              action="{{ url_for('admin_set_primary_image', image_id=image.id) }}">
+                                            <button type="submit" class="btn btn-outline-primary btn-sm mb-2">
+                                                Set as Primary
+                                            </button>
+                                        </form>
+                                        {% endif %}
+                                        <form method="POST" class="d-inline" 
+                                              action="{{ url_for('admin_delete_campaign_image', image_id=image.id) }}"
+                                              onsubmit="return confirm('Delete this image?');">
+                                            <button type="submit" class="btn btn-outline-danger btn-sm mb-2">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <hr>
+                    {% endif %}
+                    
+                    <!-- Upload New Images -->
+                    <div>
+                        <label for="images" class="form-label">
+                            {% if campaign %}Add More Images{% else %}Upload Images{% endif %}
+                        </label>
+                        <input type="file" class="form-control" id="images" name="images" 
+                               multiple accept="image/*">
+                        <small class="text-muted">
+                            You can select multiple images. The first image will be the primary image (shown on card).
+                            {% if not campaign %}At least one image is recommended.{% endif %}
+                        </small>
+                    </div>
+                    
+                    <!-- Image Preview -->
+                    <div id="imagePreview" class="row g-3 mt-3" style="display: none;"></div>
+                </div>
+            </div>
+            
+            <!-- Settings -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h6 class="mb-0">Settings</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label for="display_order" class="form-label">Display Order</label>
+                            <input type="number" class="form-control" id="display_order" name="display_order" 
+                                   value="{{ campaign.display_order if campaign else 0 }}" min="0">
+                            <small class="text-muted">Higher numbers appear first</small>
+                        </div>
+                        
+                        <div class="col-md-4">
+                            <div class="form-check form-switch mt-4">
+                                <input class="form-check-input" type="checkbox" id="published" name="published"
+                                       {% if not campaign or campaign.published %}checked{% endif %}>
+                                <label class="form-check-label" for="published">Published</label>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-4">
+                            <div class="form-check form-switch mt-4">
+                                <input class="form-check-input" type="checkbox" id="featured" name="featured"
+                                       {% if campaign and campaign.featured %}checked{% endif %}>
+                                <label class="form-check-label" for="featured">Featured</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Submit Buttons -->
+            <div class="d-flex gap-2 mb-4">
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-check-circle me-2"></i>
+                    {{ 'Update Campaign' if campaign else 'Create Campaign' }}
+                </button>
+                <a href="{{ url_for('admin_media') }}" class="btn btn-outline-secondary">Cancel</a>
+            </div>
+            
+        </form>
+    </div>
+    
+    <!-- Sidebar with Tips -->
+    <div class="col-lg-4">
+        <div class="card sticky-top" style="top: 100px;">
+            <div class="card-header">
+                <h6 class="mb-0"><i class="bi bi-lightbulb me-2"></i>Tips</h6>
+            </div>
+            <div class="card-body">
+                <h6>Image Guidelines</h6>
+                <ul class="small">
+                    <li>Use high-quality images (at least 800x600px)</li>
+                    <li>First image is shown on the media card</li>
+                    <li>All images appear in carousel in modal</li>
+                    <li>Supported: JPG, PNG, WebP, GIF</li>
+                </ul>
+                
+                <h6 class="mt-3">Category Colors</h6>
+                <ul class="small mb-0">
+                    <li><span class="badge bg-primary">Education</span> - Purple</li>
+                    <li><span class="badge bg-success">Healthcare</span> - Green</li>
+                    <li><span class="badge bg-warning">Community</span> - Yellow</li>
+                    <li><span class="badge bg-success">Environment</span> - Green</li>
+                </ul>
+                
+                <h6 class="mt-3">Best Practices</h6>
+                <ul class="small mb-0">
+                    <li>Keep titles under 50 characters</li>
+                    <li>Description should be 100-150 characters</li>
+                    <li>Add at least 2-3 impact metrics</li>
+                    <li>Upload 3-5 images per campaign</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Image preview on file select
+document.getElementById('images').addEventListener('change', function(e) {
+    const preview = document.getElementById('imagePreview');
+    preview.innerHTML = '';
+    
+    if (this.files.length > 0) {
+        preview.style.display = 'flex';
+        
+        Array.from(this.files).forEach((file, index) => {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const col = document.createElement('div');
+                col.className = 'col-md-4';
+                col.innerHTML = `
+                    <div class="card">
+                        <img src="${e.target.result}" class="card-img-top" style="height: 150px; object-fit: cover;">
+                        <div class="card-body p-2 text-center">
+                            <small class="text-muted">${index === 0 ? 'Primary Image' : 'Image ' + (index + 1)}</small>
+                        </div>
+                    </div>
+                `;
+                preview.appendChild(col);
+            };
+            reader.readAsDataURL(file);
+        });
+    } else {
+        preview.style.display = 'none';
+    }
+});
+</script>
+{% endblock %}

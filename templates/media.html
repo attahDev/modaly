@@ -22,10 +22,10 @@
     <div class="container">
         <div class="d-flex flex-wrap gap-2 justify-content-center">
             <button class="btn btn-primary filter-btn active" data-filter="all">All</button>
-            <button class="btn btn-outline-primary filter-btn" data-filter="education">Education</button>
-            <button class="btn btn-outline-primary filter-btn" data-filter="healthcare">Healthcare</button>
-            <button class="btn btn-outline-primary filter-btn" data-filter="community">Community</button>
-            <button class="btn btn-outline-primary filter-btn" data-filter="environment">Environment</button>
+            <button class="btn btn-outline-primary filter-btn" data-filter="Education">Education</button>
+            <button class="btn btn-outline-primary filter-btn" data-filter="Healthcare">Healthcare</button>
+            <button class="btn btn-outline-primary filter-btn" data-filter="Community">Community</button>
+            <button class="btn btn-outline-primary filter-btn" data-filter="Environment">Environment</button>
         </div>
     </div>
 </section>
@@ -33,525 +33,207 @@
 <!-- Media Grid -->
 <section class="py-5">
     <div class="container">
+        {% if campaigns %}
         <div class="row g-4" id="mediaGrid">
-            
-            <!-- Media Item 1 - Education -->
-            <div class="col-md-6 col-lg-4 media-item animate-on-scroll" data-category="education">
+            {% for campaign in campaigns %}
+            <div class="col-md-6 col-lg-4 media-item animate-on-scroll" data-category="{{ campaign.category }}">
                 <div class="card h-100 media-card">
                     <div class="media-image-wrapper">
-                        <img src="https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=600&h=400&fit=crop" 
-                             class="card-img-top" alt="School Supplies Drive">
+                        {% set primary_image = campaign.get_primary_image() %}
+                        {% if primary_image %}
+                        <img src="{{ primary_image.image_url }}" class="card-img-top" alt="{{ campaign.title }}">
+                        {% else %}
+                        <div class="card-img-top bg-secondary d-flex align-items-center justify-content-center">
+                            <i class="bi bi-image fs-1 text-muted"></i>
+                        </div>
+                        {% endif %}
                         <div class="media-overlay">
-                            <button class="btn btn-light btn-sm" data-bs-toggle="modal" data-bs-target="#modal1">
+                            <button class="btn btn-light btn-sm" data-bs-toggle="modal" data-bs-target="#modal{{ campaign.id }}">
                                 <i class="bi bi-eye me-1"></i>View Details
                             </button>
                         </div>
                     </div>
                     <div class="card-body">
-                        <span class="badge bg-primary mb-2">Education</span>
-                        <h5 class="card-title">School Supplies Drive 2024</h5>
-                        <p class="card-text">
-                            Provided school supplies to over 150 children in underserved communities.
-                        </p>
+                        <span class="badge 
+                            {% if campaign.category == 'Education' %}bg-primary
+                            {% elif campaign.category == 'Healthcare' %}bg-success
+                            {% elif campaign.category == 'Community' %}bg-warning
+                            {% else %}bg-success{% endif %} mb-2">
+                            {{ campaign.category }}
+                        </span>
+                        <h5 class="card-title">{{ campaign.title }}</h5>
+                        <p class="card-text">{{ campaign.description }}</p>
+                        {% if campaign.completion_date %}
                         <div class="d-flex align-items-center text-muted">
                             <i class="bi bi-calendar3 me-2"></i>
-                            <small>January 2024</small>
+                            <small>{{ campaign.completion_date }}</small>
                         </div>
+                        {% endif %}
                     </div>
                 </div>
             </div>
-
-            <!-- Media Item 2 - Healthcare -->
-            <div class="col-md-6 col-lg-4 media-item animate-on-scroll" data-category="healthcare">
-                <div class="card h-100 media-card">
-                    <div class="media-image-wrapper">
-                        <img src="https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=600&h=400&fit=crop" 
-                             class="card-img-top" alt="Health Clinic">
-                        <div class="media-overlay">
-                            <button class="btn btn-light btn-sm" data-bs-toggle="modal" data-bs-target="#modal2">
-                                <i class="bi bi-eye me-1"></i>View Details
-                            </button>
-                        </div>
-                    </div>
-                    <div class="card-body">
-                        <span class="badge bg-success mb-2">Healthcare</span>
-                        <h5 class="card-title">Mobile Health Clinic Launch</h5>
-                        <p class="card-text">
-                            Launched mobile clinic providing free health screenings to 500+ families.
-                        </p>
-                        <div class="d-flex align-items-center text-muted">
-                            <i class="bi bi-calendar3 me-2"></i>
-                            <small>February 2024</small>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Media Item 3 - Community -->
-            <div class="col-md-6 col-lg-4 media-item animate-on-scroll" data-category="community">
-                <div class="card h-100 media-card">
-                    <div class="media-image-wrapper">
-                        <img src="https://images.unsplash.com/photo-1559027615-cd4628902d4a?w=600&h=400&fit=crop" 
-                             class="card-img-top" alt="Community Center">
-                        <div class="media-overlay">
-                            <button class="btn btn-light btn-sm" data-bs-toggle="modal" data-bs-target="#modal3">
-                                <i class="bi bi-eye me-1"></i>View Details
-                            </button>
-                        </div>
-                    </div>
-                    <div class="card-body">
-                        <span class="badge bg-warning mb-2">Community</span>
-                        <h5 class="card-title">Community Center Renovation</h5>
-                        <p class="card-text">
-                            Renovated community center now serving as hub for local programs.
-                        </p>
-                        <div class="d-flex align-items-center text-muted">
-                            <i class="bi bi-calendar3 me-2"></i>
-                            <small>March 2024</small>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Media Item 4 - Education -->
-            <div class="col-md-6 col-lg-4 media-item animate-on-scroll" data-category="education">
-                <div class="card h-100 media-card">
-                    <div class="media-image-wrapper">
-                        <img src="https://images.unsplash.com/photo-1427504494785-3a9ca7044f45?w=600&h=400&fit=crop" 
-                             class="card-img-top" alt="Computer Lab">
-                        <div class="media-overlay">
-                            <button class="btn btn-light btn-sm" data-bs-toggle="modal" data-bs-target="#modal4">
-                                <i class="bi bi-eye me-1"></i>View Details
-                            </button>
-                        </div>
-                    </div>
-                    <div class="card-body">
-                        <span class="badge bg-primary mb-2">Education</span>
-                        <h5 class="card-title">Computer Lab Installation</h5>
-                        <p class="card-text">
-                            Established computer lab with 20 stations for digital literacy training.
-                        </p>
-                        <div class="d-flex align-items-center text-muted">
-                            <i class="bi bi-calendar3 me-2"></i>
-                            <small>April 2024</small>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Media Item 5 - Environment -->
-            <div class="col-md-6 col-lg-4 media-item animate-on-scroll" data-category="environment">
-                <div class="card h-100 media-card">
-                    <div class="media-image-wrapper">
-                        <img src="https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?w=600&h=400&fit=crop" 
-                             class="card-img-top" alt="Tree Planting">
-                        <div class="media-overlay">
-                            <button class="btn btn-light btn-sm" data-bs-toggle="modal" data-bs-target="#modal5">
-                                <i class="bi bi-eye me-1"></i>View Details
-                            </button>
-                        </div>
-                    </div>
-                    <div class="card-body">
-                        <span class="badge bg-success mb-2">Environment</span>
-                        <h5 class="card-title">Urban Tree Planting Initiative</h5>
-                        <p class="card-text">
-                            Planted 1,000 trees across urban areas to improve air quality.
-                        </p>
-                        <div class="d-flex align-items-center text-muted">
-                            <i class="bi bi-calendar3 me-2"></i>
-                            <small>May 2024</small>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Media Item 6 - Healthcare -->
-            <div class="col-md-6 col-lg-4 media-item animate-on-scroll" data-category="healthcare">
-                <div class="card h-100 media-card">
-                    <div class="media-image-wrapper">
-                        <img src="https://images.unsplash.com/photo-1584515933487-779824d29309?w=600&h=400&fit=crop" 
-                             class="card-img-top" alt="Vaccination Drive">
-                        <div class="media-overlay">
-                            <button class="btn btn-light btn-sm" data-bs-toggle="modal" data-bs-target="#modal6">
-                                <i class="bi bi-eye me-1"></i>View Details
-                            </button>
-                        </div>
-                    </div>
-                    <div class="card-body">
-                        <span class="badge bg-success mb-2">Healthcare</span>
-                        <h5 class="card-title">Community Vaccination Drive</h5>
-                        <p class="card-text">
-                            Organized vaccination campaign reaching 800+ community members.
-                        </p>
-                        <div class="d-flex align-items-center text-muted">
-                            <i class="bi bi-calendar3 me-2"></i>
-                            <small>June 2024</small>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
+            {% endfor %}
         </div>
+        {% else %}
+        <!-- Empty State (Admin hasn't added campaigns yet) -->
+        <div class="text-center py-5">
+            <i class="bi bi-images fs-1 mb-3 d-block text-muted"></i>
+            <h5>No campaigns yet</h5>
+            <p class="text-muted">Check back soon for updates on our latest projects!</p>
+        </div>
+        {% endif %}
 
-        <!-- Empty State -->
+        <!-- Empty State for Filter -->
         <div id="emptyState" class="text-center py-5" style="display: none;">
             <i class="bi bi-images fs-1 mb-3 d-block text-muted"></i>
             <h5>No projects found</h5>
             <p class="text-muted">Try selecting a different category.</p>
         </div>
-
     </div>
 </section>
 
-<!-- Modals for Each Project -->
-
-<!-- Modal 1: School Supplies Drive -->
-<div class="modal fade" id="modal1" tabindex="-1" aria-labelledby="modal1Label" aria-hidden="true">
+<!-- Modals for Each Campaign -->
+{% for campaign in campaigns %}
+<div class="modal fade" id="modal{{ campaign.id }}" tabindex="-1" aria-labelledby="modal{{ campaign.id }}Label" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="modal1Label">
-                    <i class="bi bi-book-fill text-primary me-2"></i>School Supplies Drive 2024
+                <h5 class="modal-title" id="modal{{ campaign.id }}Label">
+                    <i class="bi bi-
+                        {% if campaign.category == 'Education' %}book-fill text-primary
+                        {% elif campaign.category == 'Healthcare' %}hospital-fill text-success
+                        {% elif campaign.category == 'Community' %}people-fill text-warning
+                        {% elif campaign.category == 'Environment' %}tree-fill text-success
+                        {% else %}star-fill{% endif %} me-2"></i>
+                    {{ campaign.title }}
                 </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <img src="https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=800&h=500&fit=crop" 
-                     class="img-fluid rounded mb-3" alt="School Supplies Drive">
-                <span class="badge bg-primary mb-3">Education</span>
-                <h6 class="fw-bold">Project Overview</h6>
-                <p>In January 2024, we organized a comprehensive school supplies drive that reached over 150 children in underserved communities across the region.</p>
                 
+                {% if campaign.images|length > 1 %}
+                <!-- Image Carousel (multiple images) -->
+                <div id="carousel{{ campaign.id }}" class="carousel slide mb-3" data-bs-ride="carousel">
+                    <div class="carousel-indicators">
+                        {% for image in campaign.images|sort(attribute='display_order') %}
+                        <button type="button" data-bs-target="#carousel{{ campaign.id }}" 
+                                data-bs-slide-to="{{ loop.index0 }}" 
+                                {% if loop.first %}class="active" aria-current="true"{% endif %}
+                                aria-label="Slide {{ loop.index }}"></button>
+                        {% endfor %}
+                    </div>
+                    <div class="carousel-inner">
+                        {% for image in campaign.images|sort(attribute='display_order') %}
+                        <div class="carousel-item {% if loop.first %}active{% endif %}">
+                            <img src="{{ image.image_url }}" class="d-block w-100" alt="{{ campaign.title }}"
+                                 style="max-height: 500px; object-fit: cover; border-radius: 0.5rem;">
+                            {% if image.caption %}
+                            <div class="carousel-caption d-none d-md-block">
+                                <p class="mb-0">{{ image.caption }}</p>
+                            </div>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <button class="carousel-control-prev" type="button" data-bs-target="#carousel{{ campaign.id }}" data-bs-slide="prev">
+                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Previous</span>
+                    </button>
+                    <button class="carousel-control-next" type="button" data-bs-target="#carousel{{ campaign.id }}" data-bs-slide="next">
+                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Next</span>
+                    </button>
+                </div>
+                {% elif campaign.images|length == 1 %}
+                <!-- Single Image -->
+                <img src="{{ campaign.images[0].image_url }}" class="img-fluid rounded mb-3" alt="{{ campaign.title }}">
+                {% endif %}
+                
+                <span class="badge 
+                    {% if campaign.category == 'Education' %}bg-primary
+                    {% elif campaign.category == 'Healthcare' %}bg-success
+                    {% elif campaign.category == 'Community' %}bg-warning
+                    {% else %}bg-success{% endif %} mb-3">
+                    {{ campaign.category }}
+                </span>
+                
+                {% if campaign.overview %}
+                <h6 class="fw-bold">Project Overview</h6>
+                <p>{{ campaign.overview }}</p>
+                {% endif %}
+                
+                {% if campaign.metric1_value %}
                 <h6 class="fw-bold mt-3">Impact Metrics</h6>
                 <div class="row g-3 mb-3">
+                    {% if campaign.metric1_value %}
                     <div class="col-md-4">
                         <div class="text-center p-3" style="background-color: var(--bg-secondary); border-radius: 0.5rem;">
-                            <h4 class="text-primary mb-0">150+</h4>
-                            <small class="text-muted">Students Reached</small>
+                            <h4 class="
+                                {% if campaign.category == 'Education' %}text-primary
+                                {% elif campaign.category == 'Healthcare' %}text-success
+                                {% elif campaign.category == 'Community' %}text-warning
+                                {% else %}text-success{% endif %} mb-0">
+                                {{ campaign.metric1_value }}
+                            </h4>
+                            <small class="text-muted">{{ campaign.metric1_label }}</small>
                         </div>
                     </div>
+                    {% endif %}
+                    
+                    {% if campaign.metric2_value %}
                     <div class="col-md-4">
                         <div class="text-center p-3" style="background-color: var(--bg-secondary); border-radius: 0.5rem;">
-                            <h4 class="text-primary mb-0">12</h4>
-                            <small class="text-muted">Schools Served</small>
+                            <h4 class="
+                                {% if campaign.category == 'Education' %}text-primary
+                                {% elif campaign.category == 'Healthcare' %}text-success
+                                {% elif campaign.category == 'Community' %}text-warning
+                                {% else %}text-success{% endif %} mb-0">
+                                {{ campaign.metric2_value }}
+                            </h4>
+                            <small class="text-muted">{{ campaign.metric2_label }}</small>
                         </div>
                     </div>
+                    {% endif %}
+                    
+                    {% if campaign.metric3_value %}
                     <div class="col-md-4">
                         <div class="text-center p-3" style="background-color: var(--bg-secondary); border-radius: 0.5rem;">
-                            <h4 class="text-primary mb-0">$5,000</h4>
-                            <small class="text-muted">Value Distributed</small>
+                            <h4 class="
+                                {% if campaign.category == 'Education' %}text-primary
+                                {% elif campaign.category == 'Healthcare' %}text-success
+                                {% elif campaign.category == 'Community' %}text-warning
+                                {% else %}text-success{% endif %} mb-0">
+                                {{ campaign.metric3_value }}
+                            </h4>
+                            <small class="text-muted">{{ campaign.metric3_label }}</small>
                         </div>
                     </div>
+                    {% endif %}
                 </div>
+                {% endif %}
                 
-                <h6 class="fw-bold">Items Provided</h6>
+                {% set services = campaign.get_services_list() %}
+                {% if services %}
+                <h6 class="fw-bold">Services/Items Provided</h6>
                 <ul>
-                    <li>Backpacks and pencil cases</li>
-                    <li>Notebooks, paper, and folders</li>
-                    <li>Writing instruments (pens, pencils, markers)</li>
-                    <li>Art supplies (crayons, colored pencils)</li>
-                    <li>Calculators and rulers</li>
+                    {% for service in services %}
+                    <li>{{ service }}</li>
+                    {% endfor %}
                 </ul>
+                {% endif %}
                 
-                <p class="mb-0"><small class="text-muted"><i class="bi bi-calendar3 me-1"></i>Completed: January 2024</small></p>
+                {% if campaign.completion_date %}
+                <p class="mb-0"><small class="text-muted"><i class="bi bi-calendar3 me-1"></i>Completed: {{ campaign.completion_date }}</small></p>
+                {% endif %}
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-outline-primary" data-bs-dismiss="modal">Close</button>
-                <a href="{{ url_for('donate') }}" class="btn btn-primary">Support Education</a>
+                <a href="{{ url_for('donate') }}" class="btn btn-primary">Support {{ campaign.category }}</a>
             </div>
         </div>
     </div>
 </div>
-
-<!-- Modal 2: Mobile Health Clinic -->
-<div class="modal fade" id="modal2" tabindex="-1" aria-labelledby="modal2Label" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="modal2Label">
-                    <i class="bi bi-hospital-fill text-success me-2"></i>Mobile Health Clinic Launch
-                </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <img src="https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=800&h=500&fit=crop" 
-                     class="img-fluid rounded mb-3" alt="Mobile Health Clinic">
-                <span class="badge bg-success mb-3">Healthcare</span>
-                <h6 class="fw-bold">Project Overview</h6>
-                <p>Launched a state-of-the-art mobile health clinic in February 2024, providing free health screenings and basic medical care to over 500 families in remote areas.</p>
-                
-                <h6 class="fw-bold mt-3">Impact Metrics</h6>
-                <div class="row g-3 mb-3">
-                    <div class="col-md-4">
-                        <div class="text-center p-3" style="background-color: var(--bg-secondary); border-radius: 0.5rem;">
-                            <h4 class="text-success mb-0">500+</h4>
-                            <small class="text-muted">Families Served</small>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="text-center p-3" style="background-color: var(--bg-secondary); border-radius: 0.5rem;">
-                            <h4 class="text-success mb-0">1,200</h4>
-                            <small class="text-muted">Screenings Done</small>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="text-center p-3" style="background-color: var(--bg-secondary); border-radius: 0.5rem;">
-                            <h4 class="text-success mb-0">8</h4>
-                            <small class="text-muted">Villages Visited</small>
-                        </div>
-                    </div>
-                </div>
-                
-                <h6 class="fw-bold">Services Provided</h6>
-                <ul>
-                    <li>Blood pressure and diabetes screening</li>
-                    <li>General health consultations</li>
-                    <li>Basic dental care</li>
-                    <li>Vision testing and eyewear distribution</li>
-                    <li>Health education workshops</li>
-                </ul>
-                
-                <p class="mb-0"><small class="text-muted"><i class="bi bi-calendar3 me-1"></i>Launched: February 2024</small></p>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-outline-primary" data-bs-dismiss="modal">Close</button>
-                <a href="{{ url_for('donate') }}" class="btn btn-primary">Support Healthcare</a>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Modal 3: Community Center -->
-<div class="modal fade" id="modal3" tabindex="-1" aria-labelledby="modal3Label" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="modal3Label">
-                    <i class="bi bi-people-fill text-warning me-2"></i>Community Center Renovation
-                </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <img src="https://images.unsplash.com/photo-1559027615-cd4628902d4a?w=800&h=500&fit=crop" 
-                     class="img-fluid rounded mb-3" alt="Community Center">
-                <span class="badge bg-warning mb-3">Community</span>
-                <h6 class="fw-bold">Project Overview</h6>
-                <p>Completed a major renovation of the local community center in March 2024, transforming it into a vibrant hub for educational programs, social services, and community events.</p>
-                
-                <h6 class="fw-bold mt-3">Impact Metrics</h6>
-                <div class="row g-3 mb-3">
-                    <div class="col-md-4">
-                        <div class="text-center p-3" style="background-color: var(--bg-secondary); border-radius: 0.5rem;">
-                            <h4 class="text-warning mb-0">3,000</h4>
-                            <small class="text-muted">Sq Ft Renovated</small>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="text-center p-3" style="background-color: var(--bg-secondary); border-radius: 0.5rem;">
-                            <h4 class="text-warning mb-0">15</h4>
-                            <small class="text-muted">Programs Hosted</small>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="text-center p-3" style="background-color: var(--bg-secondary); border-radius: 0.5rem;">
-                            <h4 class="text-warning mb-0">400+</h4>
-                            <small class="text-muted">Weekly Visitors</small>
-                        </div>
-                    </div>
-                </div>
-                
-                <h6 class="fw-bold">New Features</h6>
-                <ul>
-                    <li>Multi-purpose meeting rooms</li>
-                    <li>Children's play area and library</li>
-                    <li>Computer lab with internet access</li>
-                    <li>Commercial kitchen for cooking classes</li>
-                    <li>Outdoor garden and recreation space</li>
-                </ul>
-                
-                <p class="mb-0"><small class="text-muted"><i class="bi bi-calendar3 me-1"></i>Completed: March 2024</small></p>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-outline-primary" data-bs-dismiss="modal">Close</button>
-                <a href="{{ url_for('donate') }}" class="btn btn-primary">Support Community</a>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Modal 4: Computer Lab -->
-<div class="modal fade" id="modal4" tabindex="-1" aria-labelledby="modal4Label" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="modal4Label">
-                    <i class="bi bi-pc-display-horizontal text-primary me-2"></i>Computer Lab Installation
-                </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <img src="https://images.unsplash.com/photo-1427504494785-3a9ca7044f45?w=800&h=500&fit=crop" 
-                     class="img-fluid rounded mb-3" alt="Computer Lab">
-                <span class="badge bg-primary mb-3">Education</span>
-                <h6 class="fw-bold">Project Overview</h6>
-                <p>Installed a modern computer lab with 20 workstations in April 2024, providing students with essential digital literacy skills and internet access.</p>
-                
-                <h6 class="fw-bold mt-3">Impact Metrics</h6>
-                <div class="row g-3 mb-3">
-                    <div class="col-md-4">
-                        <div class="text-center p-3" style="background-color: var(--bg-secondary); border-radius: 0.5rem;">
-                            <h4 class="text-primary mb-0">20</h4>
-                            <small class="text-muted">Computer Stations</small>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="text-center p-3" style="background-color: var(--bg-secondary); border-radius: 0.5rem;">
-                            <h4 class="text-primary mb-0">200+</h4>
-                            <small class="text-muted">Students Trained</small>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="text-center p-3" style="background-color: var(--bg-secondary); border-radius: 0.5rem;">
-                            <h4 class="text-primary mb-0">12</h4>
-                            <small class="text-muted">Courses Offered</small>
-                        </div>
-                    </div>
-                </div>
-                
-                <h6 class="fw-bold">Training Programs</h6>
-                <ul>
-                    <li>Basic computer skills and MS Office</li>
-                    <li>Internet safety and digital citizenship</li>
-                    <li>Coding fundamentals for kids</li>
-                    <li>Graphic design basics</li>
-                    <li>Job application and resume building</li>
-                </ul>
-                
-                <p class="mb-0"><small class="text-muted"><i class="bi bi-calendar3 me-1"></i>Completed: April 2024</small></p>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-outline-primary" data-bs-dismiss="modal">Close</button>
-                <a href="{{ url_for('donate') }}" class="btn btn-primary">Support Digital Literacy</a>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Modal 5: Tree Planting -->
-<div class="modal fade" id="modal5" tabindex="-1" aria-labelledby="modal5Label" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="modal5Label">
-                    <i class="bi bi-tree-fill text-success me-2"></i>Urban Tree Planting Initiative
-                </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <img src="https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?w=800&h=500&fit=crop" 
-                     class="img-fluid rounded mb-3" alt="Tree Planting">
-                <span class="badge bg-success mb-3">Environment</span>
-                <h6 class="fw-bold">Project Overview</h6>
-                <p>Led a major urban tree planting initiative in May 2024, planting 1,000 trees across city parks and neighborhoods to combat climate change and improve air quality.</p>
-                
-                <h6 class="fw-bold mt-3">Impact Metrics</h6>
-                <div class="row g-3 mb-3">
-                    <div class="col-md-4">
-                        <div class="text-center p-3" style="background-color: var(--bg-secondary); border-radius: 0.5rem;">
-                            <h4 class="text-success mb-0">1,000</h4>
-                            <small class="text-muted">Trees Planted</small>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="text-center p-3" style="background-color: var(--bg-secondary); border-radius: 0.5rem;">
-                            <h4 class="text-success mb-0">15</h4>
-                            <small class="text-muted">Parks Enhanced</small>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="text-center p-3" style="background-color: var(--bg-secondary); border-radius: 0.5rem;">
-                            <h4 class="text-success mb-0">300</h4>
-                            <small class="text-muted">Volunteers</small>
-                        </div>
-                    </div>
-                </div>
-                
-                <h6 class="fw-bold">Environmental Benefits</h6>
-                <ul>
-                    <li>Estimated 50 tons of CO2 absorption annually</li>
-                    <li>Improved air quality in urban areas</li>
-                    <li>Enhanced biodiversity and wildlife habitat</li>
-                    <li>Reduced urban heat island effect</li>
-                    <li>Community green space beautification</li>
-                </ul>
-                
-                <p class="mb-0"><small class="text-muted"><i class="bi bi-calendar3 me-1"></i>Completed: May 2024</small></p>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-outline-primary" data-bs-dismiss="modal">Close</button>
-                <a href="{{ url_for('donate') }}" class="btn btn-primary">Support Environment</a>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Modal 6: Vaccination Drive -->
-<div class="modal fade" id="modal6" tabindex="-1" aria-labelledby="modal6Label" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="modal6Label">
-                    <i class="bi bi-shield-fill-check text-success me-2"></i>Community Vaccination Drive
-                </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <img src="https://images.unsplash.com/photo-1584515933487-779824d29309?w=800&h=500&fit=crop" 
-                     class="img-fluid rounded mb-3" alt="Vaccination Drive">
-                <span class="badge bg-success mb-3">Healthcare</span>
-                <h6 class="fw-bold">Project Overview</h6>
-                <p>Organized a comprehensive vaccination campaign in June 2024, reaching over 800 community members with essential immunizations and health education.</p>
-                
-                <h6 class="fw-bold mt-3">Impact Metrics</h6>
-                <div class="row g-3 mb-3">
-                    <div class="col-md-4">
-                        <div class="text-center p-3" style="background-color: var(--bg-secondary); border-radius: 0.5rem;">
-                            <h4 class="text-success mb-0">800+</h4>
-                            <small class="text-muted">People Vaccinated</small>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="text-center p-3" style="background-color: var(--bg-secondary); border-radius: 0.5rem;">
-                            <h4 class="text-success mb-0">5</h4>
-                            <small class="text-muted">Vaccination Sites</small>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="text-center p-3" style="background-color: var(--bg-secondary); border-radius: 0.5rem;">
-                            <h4 class="text-success mb-0">95%</h4>
-                            <small class="text-muted">Coverage Rate</small>
-                        </div>
-                    </div>
-                </div>
-                
-                <h6 class="fw-bold">Immunizations Provided</h6>
-                <ul>
-                    <li>Flu vaccines for all age groups</li>
-                    <li>Childhood immunizations (MMR, DTaP, Polio)</li>
-                    <li>Tetanus and Hepatitis B boosters</li>
-                    <li>COVID-19 vaccines and boosters</li>
-                    <li>Free health consultations</li>
-                </ul>
-                
-                <p class="mb-0"><small class="text-muted"><i class="bi bi-calendar3 me-1"></i>Completed: June 2024</small></p>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-outline-primary" data-bs-dismiss="modal">Close</button>
-                <a href="{{ url_for('donate') }}" class="btn btn-primary">Support Public Health</a>
-            </div>
-        </div>
-    </div>
-</div>
+{% endfor %}
 
 <!-- Call to Action -->
 <section class="py-5" style="background-color: var(--bg-secondary);">
@@ -593,10 +275,14 @@
         height: 250px;
     }
 
-    .media-image-wrapper img {
+    .media-image-wrapper img,
+    .media-image-wrapper > div {
         width: 100%;
         height: 100%;
         object-fit: cover;
+    }
+
+    .media-image-wrapper img {
         transition: transform 0.5s ease;
     }
 
@@ -655,6 +341,18 @@
             opacity: 1;
             transform: translateY(0);
         }
+    }
+
+    /* Carousel improvements */
+    .carousel-control-prev-icon,
+    .carousel-control-next-icon {
+        background-color: rgba(0, 0, 0, 0.5);
+        border-radius: 50%;
+        padding: 1.5rem;
+    }
+
+    .carousel-indicators button {
+        background-color: var(--primary-color);
     }
 </style>
 

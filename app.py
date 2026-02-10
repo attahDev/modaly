@@ -64,6 +64,69 @@ class Donation(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
 
+class MediaCampaign(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(200), nullable=False)
+    description = db.Column(db.Text, nullable=False)
+    category = db.Column(db.String(50), nullable=False)  
+    completion_date = db.Column(db.String(50)) 
+
+    metric1_value = db.Column(db.String(50))  
+    metric1_label = db.Column(db.String(100))  
+    metric2_value = db.Column(db.String(50))
+    metric2_label = db.Column(db.String(100))
+    metric3_value = db.Column(db.String(50))
+    metric3_label = db.Column(db.String(100))
+    
+    overview = db.Column(db.Text)
+    services_provided = db.Column(db.Text)  
+    
+    published = db.Column(db.Boolean, default=True)
+    featured = db.Column(db.Boolean, default=False)
+    display_order = db.Column(db.Integer, default=0)
+    
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    images = db.relationship('MediaImage', backref='campaign', lazy=True, cascade='all, delete-orphan')
+    
+    def get_services_list(self):
+        if self.services_provided:
+            return [s.strip() for s in self.services_provided.split('\n') if s.strip()]
+        return []
+    
+    def get_primary_image(self):
+        if self.images:
+            primary = next((img for img in self.images if img.is_primary), None)
+            return primary or self.images[0]
+        return None
+
+
+class MediaImage(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    campaign_id = db.Column(db.Integer, db.ForeignKey('media_campaign.id'), nullable=False)
+    image_url = db.Column(db.String(500), nullable=False)
+    caption = db.Column(db.String(200))
+    display_order = db.Column(db.Integer, default=0)
+    is_primary = db.Column(db.Boolean, default=False)  # Primary image shown on card
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+
+def handle_multiple_image_uploads(files_list):
+    uploaded_urls = []
+    
+    for file in files_list:
+        if file and file.filename and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+            filename = f"{int(datetime.utcnow().timestamp())}_{filename}"
+            filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            file.save(filepath)
+            uploaded_urls.append(f"/static/uploads/{filename}")
+    
+    return uploaded_urls
+
+
+
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in app.config['ALLOWED_EXTENSIONS']
 
@@ -117,6 +180,16 @@ def blog():
     categories = [c[0] for c in categories]
     
     return render_template('blog.html', posts=posts, categories=categories, current_category=category)
+
+
+@app.route('/media')
+def media():
+    # Get all published campaigns, ordered by display order then date
+    campaigns = MediaCampaign.query.filter_by(published=True)\
+        .order_by(MediaCampaign.display_order.desc(), 
+                 MediaCampaign.created_at.desc()).all()
+    
+    return render_template('media.html', campaigns=campaigns)
 
 
 @app.route('/blog/<int:post_id>')
@@ -198,9 +271,7 @@ def donate():
     return render_template('donate.html')
 
 
-@app.route('/media')
-def media():
-    return render_template('media.html')
+
 
 
 
@@ -367,6 +438,219 @@ def admin_donations():
     return render_template('admin/donations.html', donations=donations, total=total)
 
 
+@app.route('/admin/media')
+@login_required
+def admin_media():
+    campaigns = MediaCampaign.query.order_by(MediaCampaign.display_order.desc(), 
+                                             MediaCampaign.created_at.desc()).all()
+    return render_template('admin/media.html', campaigns=campaigns)
+
+
+@app.route('/admin/media/new', methods=['GET', 'POST'])
+@login_required
+def admin_new_campaign():
+    
+    if request.method == 'POST':
+        # Get form data
+        title = request.form.get('title', '').strip()
+        description = request.form.get('description', '').strip()
+        category = request.form.get('category', 'General')
+        completion_date = request.form.get('completion_date', '').strip()
+        
+        # Metrics
+        metric1_value = request.form.get('metric1_value', '').strip()
+        metric1_label = request.form.get('metric1_label', '').strip()
+        metric2_value = request.form.get('metric2_value', '').strip()
+        metric2_label = request.form.get('metric2_label', '').strip()
+        metric3_value = request.form.get('metric3_value', '').strip()
+        metric3_label = request.form.get('metric3_label', '').strip()
+        
+        # Details
+        overview = request.form.get('overview', '').strip()
+        services_provided = request.form.get('services_provided', '').strip()
+        
+        # Status
+        published = request.form.get('published') == 'on'
+        featured = request.form.get('featured') == 'on'
+        display_order = int(request.form.get('display_order', 0))
+        
+        if title and description:
+            # Create campaign
+            campaign = MediaCampaign(
+                title=title,
+                description=description,
+                category=category,
+                completion_date=completion_date,
+                metric1_value=metric1_value,
+                metric1_label=metric1_label,
+                metric2_value=metric2_value,
+                metric2_label=metric2_label,
+                metric3_value=metric3_value,
+                metric3_label=metric3_label,
+                overview=overview,
+                services_provided=services_provided,
+                published=published,
+                featured=featured,
+                display_order=display_order
+            )
+            db.session.add(campaign)
+            db.session.flush()  # Get campaign.id
+            
+            # Handle image uploads
+            images = request.files.getlist('images')
+            if images:
+                for idx, file in enumerate(images):
+                    if file and file.filename and allowed_file(file.filename):
+                        filename = secure_filename(file.filename)
+                        filename = f"{int(datetime.utcnow().timestamp())}_{filename}"
+                        filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+                        file.save(filepath)
+                        
+                        # Create MediaImage
+                        media_image = MediaImage(
+                            campaign_id=campaign.id,
+                            image_url=f"/static/uploads/{filename}",
+                            display_order=idx,
+                            is_primary=(idx == 0)  # First image is primary
+                        )
+                        db.session.add(media_image)
+            
+            db.session.commit()
+            flash('Media campaign created successfully!', 'success')
+            return redirect(url_for('admin_media'))
+        else:
+            flash('Title and description are required.', 'danger')
+    
+    categories = ['Education', 'Healthcare', 'Community', 'Environment']
+    return render_template('admin/campaign_form.html', campaign=None, categories=categories)
+
+
+@app.route('/admin/media/<int:campaign_id>/edit', methods=['GET', 'POST'])
+@login_required
+def admin_edit_campaign(campaign_id):
+    
+    campaign = MediaCampaign.query.get_or_404(campaign_id)
+    
+    if request.method == 'POST':
+        # Update basic info
+        campaign.title = request.form.get('title', '').strip()
+        campaign.description = request.form.get('description', '').strip()
+        campaign.category = request.form.get('category', 'General')
+        campaign.completion_date = request.form.get('completion_date', '').strip()
+        
+        # Update metrics
+        campaign.metric1_value = request.form.get('metric1_value', '').strip()
+        campaign.metric1_label = request.form.get('metric1_label', '').strip()
+        campaign.metric2_value = request.form.get('metric2_value', '').strip()
+        campaign.metric2_label = request.form.get('metric2_label', '').strip()
+        campaign.metric3_value = request.form.get('metric3_value', '').strip()
+        campaign.metric3_label = request.form.get('metric3_label', '').strip()
+        
+        # Update details
+        campaign.overview = request.form.get('overview', '').strip()
+        campaign.services_provided = request.form.get('services_provided', '').strip()
+        
+        # Update status
+        campaign.published = request.form.get('published') == 'on'
+        campaign.featured = request.form.get('featured') == 'on'
+        campaign.display_order = int(request.form.get('display_order', 0))
+        
+        # Handle new image uploads
+        images = request.files.getlist('images')
+        if images and images[0].filename:  # Check if any images were uploaded
+            # Get current max display order
+            max_order = db.session.query(db.func.max(MediaImage.display_order))\
+                .filter_by(campaign_id=campaign.id).scalar() or -1
+            
+            for idx, file in enumerate(images):
+                if file and file.filename and allowed_file(file.filename):
+                    filename = secure_filename(file.filename)
+                    filename = f"{int(datetime.utcnow().timestamp())}_{filename}"
+                    filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+                    file.save(filepath)
+                    
+                    # Create MediaImage
+                    media_image = MediaImage(
+                        campaign_id=campaign.id,
+                        image_url=f"/static/uploads/{filename}",
+                        display_order=max_order + idx + 1,
+                        is_primary=False
+                    )
+                    db.session.add(media_image)
+        
+        db.session.commit()
+        flash('Campaign updated successfully!', 'success')
+        return redirect(url_for('admin_media'))
+    
+    categories = ['Education', 'Healthcare', 'Community', 'Environment']
+    return render_template('admin/campaign_form.html', campaign=campaign, categories=categories)
+
+
+@app.route('/admin/media/<int:campaign_id>/delete', methods=['POST'])
+@login_required
+def admin_delete_campaign(campaign_id):
+    
+    campaign = MediaCampaign.query.get_or_404(campaign_id)
+    
+    # Delete associated image files from disk
+    for image in campaign.images:
+        try:
+            # Extract filename from URL
+            if image.image_url.startswith('/static/uploads/'):
+                filename = image.image_url.replace('/static/uploads/', '')
+                filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+                if os.path.exists(filepath):
+                    os.remove(filepath)
+        except Exception:
+            pass
+    
+    db.session.delete(campaign)  # Cascade will delete images from DB
+    db.session.commit()
+    flash('Campaign deleted successfully.', 'info')
+    return redirect(url_for('admin_media'))
+
+
+@app.route('/admin/media/image/<int:image_id>/delete', methods=['POST'])
+@login_required
+def admin_delete_campaign_image(image_id):
+
+    image = MediaImage.query.get_or_404(image_id)
+    campaign_id = image.campaign_id
+    
+    # Delete file from disk
+    try:
+        if image.image_url.startswith('/static/uploads/'):
+            filename = image.image_url.replace('/static/uploads/', '')
+            filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            if os.path.exists(filepath):
+                os.remove(filepath)
+    except Exception:
+        pass
+    
+    db.session.delete(image)
+    db.session.commit()
+    flash('Image deleted successfully.', 'info')
+    return redirect(url_for('admin_edit_campaign', campaign_id=campaign_id))
+
+
+@app.route('/admin/media/image/<int:image_id>/set-primary', methods=['POST'])
+@login_required
+def admin_set_primary_image(image_id):
+    
+    image = MediaImage.query.get_or_404(image_id)
+    campaign_id = image.campaign_id
+    
+    # Remove primary flag from all images in this campaign
+    MediaImage.query.filter_by(campaign_id=campaign_id).update({'is_primary': False})
+    
+    # Set this image as primary
+    image.is_primary = True
+    db.session.commit()
+    
+    flash('Primary image updated.', 'success')
+    return redirect(url_for('admin_edit_campaign', campaign_id=campaign_id))
+
+
 @app.errorhandler(404)
 def page_not_found(e):
     return render_template('errors/404.html'), 404
@@ -388,25 +672,15 @@ def init_db():
             admin.set_password(app.config['ADMIN_PASSWORD'])
             db.session.add(admin)
             db.session.commit()
-            print(f"Admin user created: {app.config['ADMIN_EMAIL']}")
 
 
 
 def init_db_on_startup():
     with app.app_context():
         try:
-
             db.create_all()
-            print("=" * 60)
-            print("✅ DATABASE INITIALIZATION")
-            print("=" * 60)
-            print("✅ Database tables created/verified")
-            
-           
             admin_email = os.environ.get('ADMIN_EMAIL')
             admin_password = os.environ.get('ADMIN_PASSWORD')
-            
-         
             existing_admin = User.query.filter_by(email=admin_email).first()
             
             if not existing_admin:
@@ -415,30 +689,13 @@ def init_db_on_startup():
                 admin.set_password(admin_password)
                 db.session.add(admin)
                 db.session.commit()
-                print(f"✅ Admin user created successfully!")
-                print(f"   Email: {admin_email}")
-                print(f"   Password: {admin_password}")
             else:
-                print(f"ℹ️  Admin user already exists: {admin_email}")
+                pass
             
-            print("=" * 60)
-            print("✅ INITIALIZATION COMPLETE - App Ready!")
-            print("=" * 60)
-                
-        except Exception as e:
-            print("=" * 60)
-            print(f"⚠️  DATABASE INITIALIZATION ERROR")
-            print("=" * 60)
-            print(f"Error: {e}")
-            print("Attempting to rollback...")
+        except Exception:
+
             db.session.rollback()
-            print("App will continue running. Check environment variables.")
-            print("=" * 60)
 
-
-print("\n🚀 Starting Modaly Application...")
-init_db_on_startup()
-print("✅ App initialization complete\n")
 
 
 if __name__ == '__main__':

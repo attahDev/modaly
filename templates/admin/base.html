@@ -117,31 +117,44 @@
                 <h5 class="mb-0 text-primary">Admin</h5>
             </a>
         </div>
+
+
         <nav class="admin-sidebar-menu">
             <ul class="nav flex-column">
                 <li class="nav-item">
-                    <a class="nav-link {{ 'active' if request.endpoint == 'admin_dashboard' }}" href="{{ url_for('admin_dashboard') }}">
+                    <a class="nav-link {{ 'active' if request.endpoint == 'admin_dashboard' }}" 
+                    href="{{ url_for('admin_dashboard') }}">
                         <i class="bi bi-speedometer2 me-2"></i>Dashboard
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link {{ 'active' if request.endpoint in ['admin_posts', 'admin_new_post', 'admin_edit_post'] }}" href="{{ url_for('admin_posts') }}">
+                    <a class="nav-link {{ 'active' if request.endpoint in ['admin_posts', 'admin_new_post', 'admin_edit_post'] }}" 
+                    href="{{ url_for('admin_posts') }}">
                         <i class="bi bi-file-earmark-text me-2"></i>Blog Posts
                     </a>
                 </li>
+                <!-- NEW: Media Campaigns Link -->
                 <li class="nav-item">
-                    <a class="nav-link {{ 'active' if request.endpoint == 'admin_messages' }}" href="{{ url_for('admin_messages') }}">
+                    <a class="nav-link {{ 'active' if request.endpoint in ['admin_media', 'admin_new_campaign', 'admin_edit_campaign'] }}" 
+                    href="{{ url_for('admin_media') }}">
+                        <i class="bi bi-images me-2"></i>Media Campaigns
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {{ 'active' if request.endpoint == 'admin_messages' }}" 
+                    href="{{ url_for('admin_messages') }}">
                         <i class="bi bi-envelope me-2"></i>Messages
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link {{ 'active' if request.endpoint == 'admin_donations' }}" href="{{ url_for('admin_donations') }}">
+                    <a class="nav-link {{ 'active' if request.endpoint == 'admin_donations' }}" 
+                    href="{{ url_for('admin_donations') }}">
                         <i class="bi bi-currency-dollar me-2"></i>Donations
                     </a>
                 </li>
             </ul>
             
-            <hr class="my-3" style="border-color: var(--border-color);">
+            <hr class="my-3">
             
             <ul class="nav flex-column">
                 <li class="nav-item">
