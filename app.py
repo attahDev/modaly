@@ -676,26 +676,58 @@ def init_db():
 
 
 def init_db_on_startup():
+    """Initialize database on application startup - for Render deployment"""
     with app.app_context():
         try:
+            print("=" * 60)
+            print("INITIALIZING DATABASE...")
+            print("=" * 60)
+            
+            # Create all tables including MediaCampaign and MediaImage
             db.create_all()
+            print("✓ Database tables created successfully")
+            
+            # Print all tables for verification
+            print(f"✓ Available tables: {list(db.metadata.tables.keys())}")
+            
+            # Create admin user if doesn't exist
             admin_email = os.environ.get('ADMIN_EMAIL')
             admin_password = os.environ.get('ADMIN_PASSWORD')
-            existing_admin = User.query.filter_by(email=admin_email).first()
             
-            if not existing_admin:
+            if admin_email and admin_password:
+                existing_admin = User.query.filter_by(email=admin_email).first()
                 
-                admin = User(email=admin_email)
-                admin.set_password(admin_password)
-                db.session.add(admin)
-                db.session.commit()
+                if not existing_admin:
+                    admin = User(email=admin_email)
+                    admin.set_password(admin_password)
+                    db.session.add(admin)
+                    db.session.commit()
+                    print(f"✓ Admin user created: {admin_email}")
+                else:
+                    print(f"✓ Admin user already exists: {admin_email}")
             else:
-                pass
+                print("⚠ Warning: ADMIN_EMAIL or ADMIN_PASSWORD not set in environment variables")
             
-        except Exception:
-
+            # Verify MediaCampaign table exists
+            try:
+                campaign_count = MediaCampaign.query.count()
+                print(f"✓ MediaCampaign table verified ({campaign_count} campaigns)")
+            except Exception as e:
+                print(f"⚠ Warning: Could not query MediaCampaign table: {e}")
+            
+            print("=" * 60)
+            print("DATABASE INITIALIZATION COMPLETE!")
+            print("=" * 60)
+            
+        except Exception as e:
+            print(f"❌ DATABASE INITIALIZATION ERROR: {e}")
+            import traceback
+            traceback.print_exc()
             db.session.rollback()
 
+
+# CRITICAL: Initialize database on startup (for production/Render)
+init_db_on_startup()
 
 
 if __name__ == '__main__':
