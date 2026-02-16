@@ -784,6 +784,8 @@ def init_db_on_startup():
             db.session.rollback()
 
 
+
+
 init_db_on_startup()
 
 

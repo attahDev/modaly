@@ -397,4 +397,21 @@
         init();
     }
 
+// Submits a POST to a URL using a temporary form
+function actionPost(url) {
+    const f = document.createElement('form');
+    f.method = 'POST';
+    f.action = url;
+    document.body.appendChild(f);
+    f.submit();
+}
+
+// Same but with a confirm dialog first
+function confirmPost(url, message) {
+    if (confirm(message)) {
+        actionPost(url);
+    }
+}
+
+
 })();
