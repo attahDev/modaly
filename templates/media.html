@@ -1,24 +1,25 @@
 {% extends 'base.html' %}
-
 {% block title %}Media Gallery - Modaly{% endblock %}
 
 {% block content %}
-<!-- Header -->
+<!-- Hero -->
 <section class="hero-section" style="padding: 8rem 0 4rem;">
     <div class="container">
         <div class="row">
             <div class="col-lg-8 hero-content">
-                <h1 class="hero-title animate-fade-in-up" style="font-size: 3rem;">Our Work in Action</h1>
-                <p class="hero-subtitle animate-fade-in-up delay-1">
-                    Explore our projects, initiatives, and the impact we're making in communities around the world.
+                <h1 class="hero-title" style="font-size:3rem;">Our Work in Action</h1>
+                <p class="hero-subtitle">
+                    Explore our projects, initiatives, and the impact we're making in
+                    communities around the world.
                 </p>
             </div>
         </div>
     </div>
 </section>
 
-<!-- Filter Section -->
-<section class="py-4" style="background-color: var(--bg-secondary); border-bottom: 1px solid var(--border-color);">
+<!-- Filters -->
+<section class="py-4" style="background-color:var(--bg-secondary);
+                              border-bottom:1px solid var(--border-color);">
     <div class="container">
         <div class="d-flex flex-wrap gap-2 justify-content-center">
             <button class="btn btn-primary filter-btn active" data-filter="all">All</button>
@@ -30,43 +31,56 @@
     </div>
 </section>
 
-<!-- Media Grid -->
+<!-- Grid -->
 <section class="py-5">
     <div class="container">
         {% if campaigns %}
         <div class="row g-4" id="mediaGrid">
-            {% for campaign in campaigns %}
-            <div class="col-md-6 col-lg-4 media-item animate-on-scroll" data-category="{{ campaign.category }}">
+            {% for c in campaigns %}
+            <div class="col-md-6 col-lg-4 media-item" data-category="{{ c.category }}">
                 <div class="card h-100 media-card">
                     <div class="media-image-wrapper">
-                        {% set primary_image = campaign.get_primary_image() %}
-                        {% if primary_image %}
-                        <img src="{{ primary_image.image_url }}" class="card-img-top" alt="{{ campaign.title }}">
+                        {% set thumb = c.get_primary_image() %}
+                        {% if thumb %}
+                        <img src="{{ thumb.image_url }}" class="card-img-top" alt="{{ c.title }}">
                         {% else %}
-                        <div class="card-img-top bg-secondary d-flex align-items-center justify-content-center">
+                        <div class="card-img-top bg-secondary d-flex align-items-center
+                                    justify-content-center" style="height:250px;">
                             <i class="bi bi-image fs-1 text-muted"></i>
                         </div>
                         {% endif %}
                         <div class="media-overlay">
-                            <button class="btn btn-light btn-sm" data-bs-toggle="modal" data-bs-target="#modal{{ campaign.id }}">
+                            <button class="btn btn-light btn-sm"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#modal{{ c.id }}">
                                 <i class="bi bi-eye me-1"></i>View Details
                             </button>
                         </div>
                     </div>
                     <div class="card-body">
-                        <span class="badge 
-                            {% if campaign.category == 'Education' %}bg-primary
-                            {% elif campaign.category == 'Healthcare' %}bg-success
-                            {% elif campaign.category == 'Community' %}bg-warning
-                            {% else %}bg-success{% endif %} mb-2">
-                            {{ campaign.category }}
+                        <span class="badge {{ 'bg-primary' if c.category=='Education'
+                                             else 'bg-success' if c.category in ('Healthcare','Environment')
+                                             else 'bg-warning' }} mb-2">
+                            {{ c.category }}
                         </span>
-                        <h5 class="card-title">{{ campaign.title }}</h5>
-                        <p class="card-text">{{ campaign.description }}</p>
-                        {% if campaign.completion_date %}
+                        <!-- media count badges -->
+                        {% if c.images %}
+                        <span class="badge bg-secondary mb-2 ms-1">
+                            <i class="bi bi-images me-1"></i>{{ c.images|length }}
+                        </span>
+                        {% endif %}
+                        {% if c.videos %}
+                        <span class="badge bg-secondary mb-2 ms-1">
+                            <i class="bi bi-camera-video me-1"></i>{{ c.videos|length }}
+                        </span>
+                        {% endif %}
+
+                        <h5 class="card-title">{{ c.title }}</h5>
+                        <p class="card-text">{{ c.description }}</p>
+                        {% if c.completion_date %}
                         <div class="d-flex align-items-center text-muted">
                             <i class="bi bi-calendar3 me-2"></i>
-                            <small>{{ campaign.completion_date }}</small>
+                            <small>{{ c.completion_date }}</small>
                         </div>
                         {% endif %}
                     </div>
@@ -74,343 +88,311 @@
             </div>
             {% endfor %}
         </div>
+
+        <!-- Empty filter state -->
+        <div id="emptyState" class="text-center py-5" style="display:none;">
+            <i class="bi bi-images fs-1 mb-3 d-block text-muted"></i>
+            <h5>No projects found</h5>
+            <p class="text-muted">Try a different category.</p>
+        </div>
+
         {% else %}
-        <!-- Empty State (Admin hasn't added campaigns yet) -->
         <div class="text-center py-5">
             <i class="bi bi-images fs-1 mb-3 d-block text-muted"></i>
-            <h5>No campaigns yet</h5>
+            <h5>Coming Soon</h5>
             <p class="text-muted">Check back soon for updates on our latest projects!</p>
         </div>
         {% endif %}
-
-        <!-- Empty State for Filter -->
-        <div id="emptyState" class="text-center py-5" style="display: none;">
-            <i class="bi bi-images fs-1 mb-3 d-block text-muted"></i>
-            <h5>No projects found</h5>
-            <p class="text-muted">Try selecting a different category.</p>
-        </div>
     </div>
 </section>
 
-<!-- Modals for Each Campaign -->
-{% for campaign in campaigns %}
-<div class="modal fade" id="modal{{ campaign.id }}" tabindex="-1" aria-labelledby="modal{{ campaign.id }}Label" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-centered">
+<!-- ── MODALS ─────────────────────────────────────────────────────── -->
+{% for c in campaigns %}
+<div class="modal fade" id="modal{{ c.id }}" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content">
+
+            <!-- Header -->
             <div class="modal-header">
-                <h5 class="modal-title" id="modal{{ campaign.id }}Label">
+                <h5 class="modal-title">
                     <i class="bi bi-
-                        {% if campaign.category == 'Education' %}book-fill text-primary
-                        {% elif campaign.category == 'Healthcare' %}hospital-fill text-success
-                        {% elif campaign.category == 'Community' %}people-fill text-warning
-                        {% elif campaign.category == 'Environment' %}tree-fill text-success
-                        {% else %}star-fill{% endif %} me-2"></i>
-                    {{ campaign.title }}
+                        {% if c.category=='Education' %}book-fill text-primary
+                        {% elif c.category=='Healthcare' %}hospital-fill text-success
+                        {% elif c.category=='Community' %}people-fill text-warning
+                        {% else %}tree-fill text-success{% endif %} me-2"></i>
+                    {{ c.title }}
                 </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
+
+            <!-- Body -->
             <div class="modal-body">
-                
-                {% if campaign.images|length > 1 %}
-                <!-- Image Carousel (multiple images) -->
-                <div id="carousel{{ campaign.id }}" class="carousel slide mb-3" data-bs-ride="carousel">
-                    <div class="carousel-indicators">
-                        {% for image in campaign.images|sort(attribute='display_order') %}
-                        <button type="button" data-bs-target="#carousel{{ campaign.id }}" 
-                                data-bs-slide-to="{{ loop.index0 }}" 
-                                {% if loop.first %}class="active" aria-current="true"{% endif %}
-                                aria-label="Slide {{ loop.index }}"></button>
-                        {% endfor %}
+
+                <!-- ── Tab nav (only shown when both media types exist) ── -->
+                {% set has_images = c.images|length > 0 %}
+                {% set has_videos = c.videos|length > 0 %}
+                {% if has_images and has_videos %}
+                <ul class="nav nav-pills mb-3" id="mediaTab{{ c.id }}">
+                    <li class="nav-item">
+                        <button class="nav-link active" data-bs-toggle="pill"
+                                data-bs-target="#tab-images-{{ c.id }}">
+                            <i class="bi bi-images me-1"></i>
+                            Photos ({{ c.images|length }})
+                        </button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link" data-bs-toggle="pill"
+                                data-bs-target="#tab-videos-{{ c.id }}">
+                            <i class="bi bi-camera-video me-1"></i>
+                            Videos ({{ c.videos|length }})
+                        </button>
+                    </li>
+                </ul>
+                <div class="tab-content mb-3">
+                    <!-- Images tab -->
+                    <div class="tab-pane fade show active" id="tab-images-{{ c.id }}">
+                        {% include '_carousel.html' ignore missing %}
+                        {{ _render_carousel(c) }}
                     </div>
-                    <div class="carousel-inner">
-                        {% for image in campaign.images|sort(attribute='display_order') %}
-                        <div class="carousel-item {% if loop.first %}active{% endif %}">
-                            <img src="{{ image.image_url }}" class="d-block w-100" alt="{{ campaign.title }}"
-                                 style="max-height: 500px; object-fit: cover; border-radius: 0.5rem;">
-                            {% if image.caption %}
-                            <div class="carousel-caption d-none d-md-block">
-                                <p class="mb-0">{{ image.caption }}</p>
-                            </div>
-                            {% endif %}
-                        </div>
-                        {% endfor %}
+                    <!-- Videos tab -->
+                    <div class="tab-pane fade" id="tab-videos-{{ c.id }}">
+                        {{ _render_videos(c) }}
                     </div>
-                    <button class="carousel-control-prev" type="button" data-bs-target="#carousel{{ campaign.id }}" data-bs-slide="prev">
-                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                        <span class="visually-hidden">Previous</span>
-                    </button>
-                    <button class="carousel-control-next" type="button" data-bs-target="#carousel{{ campaign.id }}" data-bs-slide="next">
-                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                        <span class="visually-hidden">Next</span>
-                    </button>
                 </div>
-                {% elif campaign.images|length == 1 %}
-                <!-- Single Image -->
-                <img src="{{ campaign.images[0].image_url }}" class="img-fluid rounded mb-3" alt="{{ campaign.title }}">
+
+                {% elif has_images %}
+                {{ _render_carousel(c) }}
+
+                {% elif has_videos %}
+                {{ _render_videos(c) }}
                 {% endif %}
-                
-                <span class="badge 
-                    {% if campaign.category == 'Education' %}bg-primary
-                    {% elif campaign.category == 'Healthcare' %}bg-success
-                    {% elif campaign.category == 'Community' %}bg-warning
-                    {% else %}bg-success{% endif %} mb-3">
-                    {{ campaign.category }}
+
+                <!-- ── Details ── -->
+                <span class="badge {{ 'bg-primary' if c.category=='Education'
+                                     else 'bg-success' if c.category in ('Healthcare','Environment')
+                                     else 'bg-warning' }} mb-3">
+                    {{ c.category }}
                 </span>
-                
-                {% if campaign.overview %}
+
+                {% if c.overview %}
                 <h6 class="fw-bold">Project Overview</h6>
-                <p>{{ campaign.overview }}</p>
+                <p>{{ c.overview }}</p>
                 {% endif %}
-                
-                {% if campaign.metric1_value %}
+
+                {% if c.metric1_value %}
                 <h6 class="fw-bold mt-3">Impact Metrics</h6>
                 <div class="row g-3 mb-3">
-                    {% if campaign.metric1_value %}
+                    {% for val, lbl in [
+                        (c.metric1_value, c.metric1_label),
+                        (c.metric2_value, c.metric2_label),
+                        (c.metric3_value, c.metric3_label)
+                    ] %}
+                    {% if val %}
                     <div class="col-md-4">
-                        <div class="text-center p-3" style="background-color: var(--bg-secondary); border-radius: 0.5rem;">
-                            <h4 class="
-                                {% if campaign.category == 'Education' %}text-primary
-                                {% elif campaign.category == 'Healthcare' %}text-success
-                                {% elif campaign.category == 'Community' %}text-warning
-                                {% else %}text-success{% endif %} mb-0">
-                                {{ campaign.metric1_value }}
-                            </h4>
-                            <small class="text-muted">{{ campaign.metric1_label }}</small>
+                        <div class="text-center p-3"
+                             style="background:var(--bg-secondary);border-radius:.5rem;">
+                            <h4 class="{{ 'text-primary' if c.category=='Education'
+                                         else 'text-success' if c.category in ('Healthcare','Environment')
+                                         else 'text-warning' }} mb-0">{{ val }}</h4>
+                            <small class="text-muted">{{ lbl }}</small>
                         </div>
                     </div>
                     {% endif %}
-                    
-                    {% if campaign.metric2_value %}
-                    <div class="col-md-4">
-                        <div class="text-center p-3" style="background-color: var(--bg-secondary); border-radius: 0.5rem;">
-                            <h4 class="
-                                {% if campaign.category == 'Education' %}text-primary
-                                {% elif campaign.category == 'Healthcare' %}text-success
-                                {% elif campaign.category == 'Community' %}text-warning
-                                {% else %}text-success{% endif %} mb-0">
-                                {{ campaign.metric2_value }}
-                            </h4>
-                            <small class="text-muted">{{ campaign.metric2_label }}</small>
-                        </div>
-                    </div>
-                    {% endif %}
-                    
-                    {% if campaign.metric3_value %}
-                    <div class="col-md-4">
-                        <div class="text-center p-3" style="background-color: var(--bg-secondary); border-radius: 0.5rem;">
-                            <h4 class="
-                                {% if campaign.category == 'Education' %}text-primary
-                                {% elif campaign.category == 'Healthcare' %}text-success
-                                {% elif campaign.category == 'Community' %}text-warning
-                                {% else %}text-success{% endif %} mb-0">
-                                {{ campaign.metric3_value }}
-                            </h4>
-                            <small class="text-muted">{{ campaign.metric3_label }}</small>
-                        </div>
-                    </div>
-                    {% endif %}
+                    {% endfor %}
                 </div>
                 {% endif %}
-                
-                {% set services = campaign.get_services_list() %}
+
+                {% set services = c.get_services_list() %}
                 {% if services %}
-                <h6 class="fw-bold">Services/Items Provided</h6>
-                <ul>
-                    {% for service in services %}
-                    <li>{{ service }}</li>
-                    {% endfor %}
-                </ul>
+                <h6 class="fw-bold">Services / Items Provided</h6>
+                <ul>{% for s in services %}<li>{{ s }}</li>{% endfor %}</ul>
                 {% endif %}
-                
-                {% if campaign.completion_date %}
-                <p class="mb-0"><small class="text-muted"><i class="bi bi-calendar3 me-1"></i>Completed: {{ campaign.completion_date }}</small></p>
+
+                {% if c.completion_date %}
+                <p class="mb-0">
+                    <small class="text-muted">
+                        <i class="bi bi-calendar3 me-1"></i>Completed: {{ c.completion_date }}
+                    </small>
+                </p>
                 {% endif %}
             </div>
+
+            <!-- Footer -->
             <div class="modal-footer">
-                <button type="button" class="btn btn-outline-primary" data-bs-dismiss="modal">Close</button>
-                <a href="{{ url_for('donate') }}" class="btn btn-primary">Support {{ campaign.category }}</a>
+                <button type="button" class="btn btn-outline-primary"
+                        data-bs-dismiss="modal">Close</button>
+                <a href="{{ url_for('donate') }}" class="btn btn-primary">
+                    Support {{ c.category }}
+                </a>
             </div>
         </div>
     </div>
 </div>
 {% endfor %}
 
-<!-- Call to Action -->
-<section class="py-5" style="background-color: var(--bg-secondary);">
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-lg-8 text-center">
-                <h2 class="mb-3">Be Part of Our Story</h2>
-                <p class="lead mb-4">
-                    Your support helps us create more impact stories like these. Join us in transforming lives.
-                </p>
-                <a href="{{ url_for('donate') }}" class="btn btn-primary btn-lg px-5">
-                    <i class="bi bi-heart-fill me-2"></i>Support Our Work
-                </a>
-            </div>
-        </div>
+<!-- CTA -->
+<section class="py-5" style="background-color:var(--bg-secondary);">
+    <div class="container text-center">
+        <h2 class="mb-3">Be Part of Our Story</h2>
+        <p class="lead mb-4">
+            Your support helps us create more impact stories like these.
+        </p>
+        <a href="{{ url_for('donate') }}" class="btn btn-primary btn-lg px-5">
+            <i class="bi bi-heart-fill me-2"></i>Support Our Work
+        </a>
     </div>
 </section>
-
 {% endblock %}
+
+{# ── Jinja macros (defined here, used above via call) ──────────────────── #}
+{% macro _render_carousel(c) %}
+{% if c.images|length > 1 %}
+<div id="carousel{{ c.id }}" class="carousel slide mb-3" data-bs-ride="false">
+    <div class="carousel-indicators">
+        {% for img in c.images %}
+        <button type="button" data-bs-target="#carousel{{ c.id }}"
+                data-bs-slide-to="{{ loop.index0 }}"
+                {% if loop.first %}class="active"{% endif %}></button>
+        {% endfor %}
+    </div>
+    <div class="carousel-inner">
+        {% for img in c.images %}
+        <div class="carousel-item {% if loop.first %}active{% endif %}">
+            <img src="{{ img.image_url }}" class="d-block w-100 rounded"
+                 style="max-height:480px;object-fit:cover;"
+                 alt="{{ img.caption or c.title }}">
+            {% if img.caption %}
+            <div class="carousel-caption d-none d-md-block">
+                <p class="mb-0 bg-dark bg-opacity-50 rounded px-2 py-1 d-inline-block">
+                    {{ img.caption }}
+                </p>
+            </div>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+    <button class="carousel-control-prev" type="button"
+            data-bs-target="#carousel{{ c.id }}" data-bs-slide="prev">
+        <span class="carousel-control-prev-icon"></span>
+    </button>
+    <button class="carousel-control-next" type="button"
+            data-bs-target="#carousel{{ c.id }}" data-bs-slide="next">
+        <span class="carousel-control-next-icon"></span>
+    </button>
+</div>
+{% elif c.images|length == 1 %}
+<img src="{{ c.images[0].image_url }}" class="img-fluid rounded mb-3" alt="{{ c.title }}">
+{% endif %}
+{% endmacro %}
+
+{% macro _render_videos(c) %}
+{% for vid in c.videos %}
+<div class="mb-3">
+    {% if vid.title %}
+    <p class="fw-semibold mb-1">
+        {{ vid.title }}
+        <span class="badge
+            {% if vid.video_type=='youtube' %}bg-danger
+            {% elif vid.video_type=='vimeo' %}bg-info
+            {% else %}bg-secondary{% endif %} ms-1">
+            {{ vid.video_type }}
+        </span>
+    </p>
+    {% endif %}
+
+    {% if vid.is_upload() %}
+    <!-- Uploaded video file -->
+    <video controls class="w-100 rounded" style="max-height:420px;background:#000;">
+        <source src="{{ vid.video_url }}">
+        Your browser does not support the video tag.
+    </video>
+    {% else %}
+    <!-- YouTube / Vimeo embed -->
+    <div class="ratio ratio-16x9 rounded overflow-hidden">
+        <iframe src="{{ vid.get_embed_url() }}"
+                title="{{ vid.title or 'Video' }}"
+                allow="accelerometer; autoplay; clipboard-write;
+                       encrypted-media; gyroscope; picture-in-picture"
+                allowfullscreen></iframe>
+    </div>
+    {% endif %}
+</div>
+{% endfor %}
+{% endmacro %}
 
 {% block scripts %}
 <style>
-    /* Media Card Styles */
-    .media-card {
-        transition: all 0.3s ease;
-        border: 1px solid var(--border-color);
-        overflow: hidden;
-        background-color: var(--bg-card);
-    }
+.media-card { transition:all .3s ease; border:1px solid var(--border-color);
+              background:var(--bg-card); overflow:hidden; }
+.media-card:hover { transform:translateY(-5px); box-shadow:var(--shadow-lg); }
 
-    .media-card:hover {
-        transform: translateY(-5px);
-        box-shadow: var(--shadow-lg);
-    }
+.media-image-wrapper { position:relative; overflow:hidden; height:250px; }
+.media-image-wrapper img { width:100%; height:100%; object-fit:cover;
+                            transition:transform .5s ease; }
+.media-card:hover .media-image-wrapper img { transform:scale(1.08); }
 
-    .media-image-wrapper {
-        position: relative;
-        overflow: hidden;
-        height: 250px;
-    }
+.media-overlay { position:absolute; inset:0; background:rgba(0,0,0,.65);
+                 display:flex; align-items:center; justify-content:center;
+                 opacity:0; transition:opacity .3s; }
+.media-card:hover .media-overlay { opacity:1; }
 
-    .media-image-wrapper img,
-    .media-image-wrapper > div {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-    }
+.filter-btn.active { background:var(--primary-color)!important;
+                     border-color:var(--primary-color)!important; color:#fff!important; }
 
-    .media-image-wrapper img {
-        transition: transform 0.5s ease;
-    }
+.carousel-control-prev-icon,
+.carousel-control-next-icon { background-color:rgba(0,0,0,.5);
+                               border-radius:50%; padding:1.4rem; }
+.carousel-indicators [data-bs-slide-to] { background-color:var(--primary-color); }
 
-    .media-card:hover .media-image-wrapper img {
-        transform: scale(1.1);
-    }
+.media-item { opacity:0; animation:fadeInUp .6s ease forwards; }
+.media-item:nth-child(1){animation-delay:.1s}
+.media-item:nth-child(2){animation-delay:.2s}
+.media-item:nth-child(3){animation-delay:.3s}
+.media-item:nth-child(4){animation-delay:.4s}
+.media-item:nth-child(5){animation-delay:.5s}
+.media-item:nth-child(6){animation-delay:.6s}
 
-    .media-overlay {
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: rgba(0, 0, 0, 0.7);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        opacity: 0;
-        transition: opacity 0.3s ease;
-    }
-
-    .media-card:hover .media-overlay {
-        opacity: 1;
-    }
-
-    /* Filter Buttons */
-    .filter-btn {
-        transition: all 0.3s ease;
-    }
-
-    .filter-btn.active {
-        background-color: var(--primary-color);
-        border-color: var(--primary-color);
-        color: #ffffff;
-    }
-
-    /* Animation for grid items */
-    .media-item {
-        opacity: 0;
-        animation: fadeInUp 0.6s ease forwards;
-    }
-
-    .media-item:nth-child(1) { animation-delay: 0.1s; }
-    .media-item:nth-child(2) { animation-delay: 0.2s; }
-    .media-item:nth-child(3) { animation-delay: 0.3s; }
-    .media-item:nth-child(4) { animation-delay: 0.4s; }
-    .media-item:nth-child(5) { animation-delay: 0.5s; }
-    .media-item:nth-child(6) { animation-delay: 0.6s; }
-
-    @keyframes fadeInUp {
-        from {
-            opacity: 0;
-            transform: translateY(30px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-
-    /* Carousel improvements */
-    .carousel-control-prev-icon,
-    .carousel-control-next-icon {
-        background-color: rgba(0, 0, 0, 0.5);
-        border-radius: 50%;
-        padding: 1.5rem;
-    }
-
-    .carousel-indicators button {
-        background-color: var(--primary-color);
-    }
+@keyframes fadeInUp {
+  from{opacity:0;transform:translateY(28px)}
+  to{opacity:1;transform:translateY(0)}
+}
 </style>
 
 <script>
-    // Filter functionality
-    const filterButtons = document.querySelectorAll('.filter-btn');
-    const mediaItems = document.querySelectorAll('.media-item');
-    const emptyState = document.getElementById('emptyState');
+// ── Filter ──────────────────────────────────────────────────────────────
+document.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.addEventListener('click', function () {
+        document.querySelectorAll('.filter-btn').forEach(b => {
+            b.classList.remove('active','btn-primary');
+            b.classList.add('btn-outline-primary');
+        });
+        this.classList.add('active','btn-primary');
+        this.classList.remove('btn-outline-primary');
 
-    filterButtons.forEach(button => {
-        button.addEventListener('click', function() {
-            // Update active button
-            filterButtons.forEach(btn => {
-                btn.classList.remove('active');
-                btn.classList.remove('btn-primary');
-                btn.classList.add('btn-outline-primary');
-            });
-            this.classList.add('active');
-            this.classList.add('btn-primary');
-            this.classList.remove('btn-outline-primary');
+        const filter = this.dataset.filter;
+        let visible = 0;
+        document.querySelectorAll('.media-item').forEach(item => {
+            const show = filter === 'all' || item.dataset.category === filter;
+            item.style.display = show ? 'block' : 'none';
+            if (show) visible++;
+        });
+        document.getElementById('emptyState').style.display =
+            visible === 0 ? 'block' : 'none';
+    });
+});
 
-            // Get filter category
-            const filterValue = this.getAttribute('data-filter');
-            
-            // Filter items
-            let visibleCount = 0;
-            mediaItems.forEach(item => {
-                const category = item.getAttribute('data-category');
-                
-                if (filterValue === 'all' || category === filterValue) {
-                    item.style.display = 'block';
-                    visibleCount++;
-                } else {
-                    item.style.display = 'none';
-                }
-            });
-
-            // Show empty state if no items
-            emptyState.style.display = visibleCount === 0 ? 'block' : 'none';
+// ── Pause videos when a modal closes ────────────────────────────────────
+document.querySelectorAll('.modal').forEach(modal => {
+    modal.addEventListener('hide.bs.modal', () => {
+        // Pause HTML5 videos
+        modal.querySelectorAll('video').forEach(v => v.pause());
+        // Stop iframes (YouTube/Vimeo) by resetting src
+        modal.querySelectorAll('iframe').forEach(f => {
+            const src = f.src;
+            f.src = '';
+            f.src = src;
         });
     });
-
-    // Scroll animations
-    const observerOptions = {
-        threshold: 0.1,
-        rootMargin: '0px 0px -50px 0px'
-    };
-
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                entry.target.classList.add('visible');
-            }
-        });
-    }, observerOptions);
-
-    document.querySelectorAll('.animate-on-scroll').forEach(el => {
-        observer.observe(el);
-    });
+});
 </script>
 {% endblock %}
