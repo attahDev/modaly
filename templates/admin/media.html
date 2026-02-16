@@ -21,18 +21,18 @@
         <div class="card h-100">
             {% set primary_image = campaign.get_primary_image() %}
             {% if primary_image %}
-            <img src="{{ primary_image.image_url }}" class="card-img-top" alt="{{ campaign.title }}" 
+            <img src="{{ primary_image.image_url }}" class="card-img-top" alt="{{ campaign.title }}"
                  style="height: 200px; object-fit: cover;">
             {% else %}
-            <div class="card-img-top bg-secondary d-flex align-items-center justify-content-center" 
+            <div class="card-img-top bg-secondary d-flex align-items-center justify-content-center"
                  style="height: 200px;">
                 <i class="bi bi-image fs-1 text-muted"></i>
             </div>
             {% endif %}
-            
+
             <div class="card-body">
                 <div class="d-flex justify-content-between align-items-start mb-2">
-                    <span class="badge 
+                    <span class="badge
                         {% if campaign.category == 'Education' %}bg-primary
                         {% elif campaign.category == 'Healthcare' %}bg-success
                         {% elif campaign.category == 'Community' %}bg-warning
@@ -49,12 +49,12 @@
                         {% endif %}
                     </div>
                 </div>
-                
+
                 <h5 class="card-title">{{ campaign.title }}</h5>
                 <p class="card-text text-muted small">
                     {{ campaign.description[:100] }}{% if campaign.description|length > 100 %}...{% endif %}
                 </p>
-                
+
                 <div class="d-flex align-items-center justify-content-between text-muted small mb-3">
                     <span>
                         <i class="bi bi-images me-1"></i>
@@ -65,17 +65,17 @@
                         {{ campaign.completion_date or 'No date' }}
                     </span>
                 </div>
-                
+
                 <div class="d-flex gap-2">
-                    <a href="{{ url_for('admin_edit_campaign', campaign_id=campaign.id) }}" 
+                    <a href="{{ url_for('admin_edit_campaign', campaign_id=campaign.id) }}"
                        class="btn btn-outline-primary btn-sm flex-grow-1">
                         <i class="bi bi-pencil me-1"></i>Edit
                     </a>
-                    <form method="POST" action="{{ url_for('admin_delete_campaign', campaign_id=campaign.id) }}" 
-                          onsubmit="return confirm('Delete this campaign and all its images?');" 
-                          class="flex-grow-1">
-                        <button type="submit" class="btn btn-outline-danger btn-sm w-100">
-                            <i class="bi bi-trash me-1"></i>Delete
+                    <form method="POST"
+                          action="{{ url_for('admin_delete_campaign', campaign_id=campaign.id) }}"
+                          onsubmit="return confirm('Are you sure you want to delete this campaign? This cannot be undone.')">
+                        <button type="submit" class="btn btn-outline-danger btn-sm">
+                            <i class="bi bi-trash"></i>
                         </button>
                     </form>
                 </div>

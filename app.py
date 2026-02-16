@@ -28,7 +28,7 @@ class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(120), unique=True, nullable=False)
     password_hash = db.Column(db.String(256), nullable=False)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
@@ -45,8 +45,9 @@ class BlogPost(db.Model):
     category = db.Column(db.String(50), default='General')
     image_url = db.Column(db.String(500))
     published = db.Column(db.Boolean, default=True)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
+    updated_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc),
+                           onupdate=lambda: datetime.now(timezone.utc))
 
 
 class ContactMessage(db.Model):
@@ -56,7 +57,7 @@ class ContactMessage(db.Model):
     subject = db.Column(db.String(200))
     message = db.Column(db.Text, nullable=False)
     read = db.Column(db.Boolean, default=False)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
 
 
 class Donation(db.Model):
@@ -65,7 +66,7 @@ class Donation(db.Model):
     email = db.Column(db.String(120), nullable=False)
     amount = db.Column(db.Float, nullable=False)
     message = db.Column(db.Text)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
 
 
 class MediaCampaign(db.Model):
@@ -89,8 +90,9 @@ class MediaCampaign(db.Model):
     featured = db.Column(db.Boolean, default=False)
     display_order = db.Column(db.Integer, default=0)
 
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
+    updated_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc),
+                           onupdate=lambda: datetime.now(timezone.utc))
 
     images = db.relationship('MediaImage', backref='campaign', lazy=True,
                              cascade='all, delete-orphan',
@@ -116,7 +118,7 @@ class MediaImage(db.Model):
     caption = db.Column(db.String(200))
     display_order = db.Column(db.Integer, default=0)
     is_primary = db.Column(db.Boolean, default=False)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
 
 
 class MediaVideo(db.Model):
@@ -128,7 +130,7 @@ class MediaVideo(db.Model):
     title = db.Column(db.String(200))
     caption = db.Column(db.String(200))
     display_order = db.Column(db.Integer, default=0)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
 
     def get_embed_url(self):
         """Return iframe-safe embed URL for YouTube / Vimeo."""
@@ -175,7 +177,7 @@ def allowed_video(filename):
 def save_upload(file):
     """Save a file to UPLOAD_FOLDER and return its public URL."""
     filename = secure_filename(file.filename)
-    filename = f"{int(datetime.utcnow().timestamp())}_{filename}"
+    filename = f"{int(datetime.now(timezone.utc).timestamp())}_{filename}"
     file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
     return f"/static/uploads/{filename}"
 
@@ -208,7 +210,7 @@ def handle_image_upload(files, existing_url=None):
         file = files['image_file']
         if file and file.filename and allowed_file(file.filename):
             filename = secure_filename(file.filename)
-            filename = f"{int(datetime.utcnow().timestamp())}_{filename}"
+            filename = f"{int(datetime.now(timezone.utc).timestamp())}_{filename}"
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
             return f"/static/uploads/{filename}"
     return existing_url
@@ -216,7 +218,7 @@ def handle_image_upload(files, existing_url=None):
 
 @app.context_processor
 def inject_globals():
-    return {'current_year': datetime.now().year}
+    return {'current_year': datetime.now(timezone.utc).year}
 
 
 # =============================================================================
@@ -354,7 +356,7 @@ def logout():
 
 
 # =============================================================================
-# ADMIN — DASHBOARD / BLOG / MESSAGES / DONATIONS  (unchanged)
+# ADMIN — DASHBOARD / BLOG / MESSAGES / DONATIONS
 # =============================================================================
 
 @app.route('/admin')
@@ -554,8 +556,8 @@ def admin_new_campaign():
                 ))
 
         # External YouTube / Vimeo links
-        ext_urls  = request.form.getlist('ext_video_url')
-        ext_types = request.form.getlist('ext_video_type')
+        ext_urls   = request.form.getlist('ext_video_url')
+        ext_types  = request.form.getlist('ext_video_type')
         ext_titles = request.form.getlist('ext_video_title')
         vid_offset = len(request.files.getlist('videos'))
         for idx, url in enumerate(ext_urls):
@@ -577,7 +579,7 @@ def admin_new_campaign():
                            campaign=None, categories=categories)
 
 
-# ── EDIT  (BUG FIX: form action is now set explicitly in the template) ────────
+# ── EDIT ──────────────────────────────────────────────────────────────────────
 
 @app.route('/admin/media/<int:campaign_id>/edit', methods=['GET', 'POST'])
 @login_required
@@ -628,10 +630,10 @@ def admin_edit_campaign(campaign_id):
                 ))
 
         # New external links
-        ext_urls  = request.form.getlist('ext_video_url')
-        ext_types = request.form.getlist('ext_video_type')
+        ext_urls   = request.form.getlist('ext_video_url')
+        ext_types  = request.form.getlist('ext_video_type')
         ext_titles = request.form.getlist('ext_video_title')
-        max_vid2 = max((v.display_order for v in campaign.videos), default=-1)
+        max_vid2   = max((v.display_order for v in campaign.videos), default=-1)
         for idx, url in enumerate(ext_urls):
             url = url.strip()
             if url:
@@ -643,10 +645,16 @@ def admin_edit_campaign(campaign_id):
                     display_order=max_vid2 + idx + 1,
                 ))
 
-        campaign.updated_at = datetime.now(timezone.utc)
-        db.session.commit()
-        flash('Campaign updated successfully!', 'success')
-        return redirect(url_for('admin_media'))
+        try:
+            campaign.updated_at = datetime.now(timezone.utc)
+            db.session.commit()
+            flash('Campaign updated successfully!', 'success')
+            return redirect(url_for('admin_media'))
+        except Exception as e:
+            db.session.rollback()
+            print(f"❌ Update error: {e}")
+            flash(f'Update failed: {str(e)}', 'danger')
+            return redirect(url_for('admin_edit_campaign', campaign_id=campaign.id))
 
     return render_template('admin/campaign_form.html',
                            campaign=campaign, categories=categories)
@@ -719,6 +727,12 @@ def page_not_found(e):
     return render_template('errors/404.html'), 404
 
 
+@app.errorhandler(413)
+def request_too_large(e):
+    flash('File too large. Maximum size is 100MB.', 'danger')
+    return redirect(request.referrer or url_for('admin_media'))
+
+
 @app.errorhandler(500)
 def internal_error(e):
     db.session.rollback()
@@ -744,14 +758,18 @@ def init_db_on_startup():
             admin_password = os.environ.get('ADMIN_PASSWORD')
 
             if admin_email and admin_password:
-                if not User.query.filter_by(email=admin_email).first():
+                existing_admin = User.query.filter_by(email=admin_email).first()
+                if not existing_admin:
                     admin = User(email=admin_email)
                     admin.set_password(admin_password)
                     db.session.add(admin)
                     db.session.commit()
                     print(f"✓ Admin created: {admin_email}")
                 else:
-                    print(f"✓ Admin exists: {admin_email}")
+                    # Always sync password with what's in the environment
+                    existing_admin.set_password(admin_password)
+                    db.session.commit()
+                    print(f"✓ Admin password synced: {admin_email}")
             else:
                 print("⚠ ADMIN_EMAIL / ADMIN_PASSWORD not set")
 
@@ -770,4 +788,4 @@ init_db_on_startup()
 
 
 if __name__ == '__main__':
-    app.run(debug=True) 
+    app.run(debug=True)
